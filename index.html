@@ -336,6 +336,61 @@
 
     footer.note { margin-top: 22px; text-align: center; color: var(--muted); font-size: 0.74rem; line-height: 1.6; }
 
+    /* ===== Tickets bar + modal ===== */
+    .tickets-bar {
+      width: 100%; min-height: 44px; cursor: pointer; border-radius: 12px;
+      border: 1px solid rgba(232,95,92,.45);
+      background: linear-gradient(135deg, rgba(232,95,92,.14), rgba(217,154,33,.14));
+      color: #8a2f2c; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      font-size: 0.9rem; font-weight: 700; transition: transform .12s ease;
+    }
+    .tickets-bar:active { transform: scale(0.99); }
+    .tickets-count {
+      flex: 0 0 auto; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px;
+      background: var(--coral); color: #fff; font-size: 0.78rem; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+
+    .modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal[hidden] { display: none; }
+    .modal-backdrop { position: absolute; inset: 0; background: rgba(16,26,31,.55); backdrop-filter: blur(2px); }
+    .modal-card {
+      position: relative; z-index: 1; width: min(560px, 100%); max-height: 86vh; overflow: auto;
+      background: var(--surface); border-radius: 18px; box-shadow: 0 24px 60px rgba(0,0,0,.3);
+      padding: 14px 14px 16px;
+    }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .modal-head strong { font-size: 1.02rem; font-weight: 700; }
+    .modal-close {
+      width: 34px; height: 34px; flex: 0 0 auto; border-radius: 9px; border: 1px solid var(--line);
+      background: #fff; color: var(--muted); cursor: pointer; font-size: 0.95rem;
+    }
+    .modal-sub { margin: 6px 0 0; font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+    .tk-list { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 9px; }
+    .tk-day-head { font-size: 0.74rem; font-weight: 700; color: var(--teal-dark);
+      margin: 6px 0 -2px; padding-inline-start: 2px; }
+    .tk-item { display: flex; align-items: center; gap: 11px; padding: 10px 11px;
+      border: 1px solid var(--line); border-radius: 12px; background: #fbfdfd; }
+    .tk-item.is-optional { border-style: dashed; border-color: rgba(217,154,33,.5); background: #fffdf8; }
+    .tk-when { flex: 0 0 auto; display: grid; gap: 1px; text-align: center; min-width: 46px; }
+    .tk-time { font-weight: 700; font-size: 0.92rem; direction: ltr; color: #233238; }
+    .tk-kind { font-size: 1.05rem; }
+    .tk-main { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
+    .tk-main strong { font-size: 0.9rem; font-weight: 600; line-height: 1.2; }
+    .tk-main small { font-size: 0.74rem; color: var(--muted); }
+    .tk-opt { color: var(--gold); font-weight: 700; }
+    .tk-tier { display: inline-block; font-size: 0.64rem; font-weight: 700; border-radius: 999px;
+      padding: 1px 7px; margin-inline-end: 4px; vertical-align: middle; }
+    .tier-must { background: var(--coral); color: #fff; }
+    .tier-recommended { background: rgba(217,154,33,.18); color: #8a5a12; border: 1px solid rgba(217,154,33,.5); }
+    .tk-cta {
+      flex: 0 0 auto; min-height: 38px; padding: 7px 12px; border-radius: 10px; white-space: nowrap;
+      font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .tk-cta.kind-ticket { background: var(--coral); border: 1px solid var(--coral); color: #fff; }
+    .tk-cta.kind-booking { background: var(--teal); border: 1px solid var(--teal); color: #fff; }
+    .tk-cta.is-search { background: #fff; color: #34484f; border-color: var(--line); }
+
     @media (max-width: 360px) {
       .stop-time { font-size: 0.8rem; }
       .actions { grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); }
@@ -368,6 +423,10 @@
         <button class="ctrl" id="btnOpen" type="button">⬇️ פתח הכל</button>
         <button class="ctrl" id="btnClose" type="button">⬆️ סגור הכל</button>
       </div>
+      <button class="tickets-bar" id="btnTickets" type="button">
+        <span class="tickets-bar-title">🎟️ כרטיסים והזמנות מראש</span>
+        <span class="tickets-count" id="ticketsCount"></span>
+      </button>
       <div class="progress-line" id="progressLine"></div>
     </div>
   </header>
@@ -379,6 +438,22 @@
       קישורי מפות, ניווט ו־Uber נוצרים אוטומטית. מרחקים וזמנים הם הערכה (≈).
     </footer>
   </main>
+
+  <div class="modal" id="ticketsModal" hidden>
+    <div class="modal-backdrop" data-close-tickets></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="כרטיסים והזמנות מראש">
+      <div class="modal-head">
+        <strong>🎟️ כרטיסים והזמנות מראש</strong>
+        <button class="modal-close" type="button" data-close-tickets aria-label="סגור">✕</button>
+      </div>
+      <p class="modal-sub">
+        <span class="tk-tier tier-must">חובה</span> להזמין מראש — נוטה להיגמר.
+        <span class="tk-tier tier-recommended">מומלץ</span> כדאי להזמין, אפשר גם להסתכן.<br>
+        מה שלא ברשימה (טאפאס, ברים, סאונות) — אפשר פשוט להגיע, בלי הזמנה.
+      </p>
+      <ul class="tk-list" id="ticketsList"></ul>
+    </div>
+  </div>
 
   <script>
     /* =========================================================
@@ -465,7 +540,7 @@
             notes: ["מומלץ להזמין שולחן מראש.", "נקודת פתיחה טובה להליכה בעיר העתיקה."],
             searchQuery: "Bloome By Sasha Brunch Sin Gluten Gotico", mapQuery: "Bloome by Sasha Gothic Quarter Barcelona",
             originHint: HOTEL, transportType: "transit",
-            bookingRequired: true, bookingUrl: "https://www.bloomebysasha.es/brunch-gotico" }, // ← לינק הזמנה אמיתי
+            priority: "recommended", bookingRequired: true, bookingUrl: "https://www.bloomebysasha.es/brunch-gotico" }, // ← לינק הזמנה אמיתי
           { id: "thu-gothic", time: "11:30", title: "היסטוריה ונשנושי שוק", emoji: "⛪", category: "attraction",
             placeName: "קתדרלת ברצלונה · קיר הנשיקה · לה בוקריה", city: "Barcelona", coords: [41.3839, 2.1762],
             wiki: "Barcelona Cathedral",
@@ -509,7 +584,7 @@
             notes: ["מומלץ להזמין שולחן מראש.", "מתאים אחרי רופטופ בלי להתרוצץ."],
             searchQuery: "Robata Barcelona", mapQuery: "Robata Barcelona",
             originHint: "The Barcelona Edition Barcelona", transportType: "transit",
-            bookingRequired: true, bookingUrl: "https://robata.es/" } // ← לינק הזמנה אמיתי
+            priority: "recommended", bookingRequired: true, bookingUrl: "https://robata.es/" } // ← לינק הזמנה אמיתי
         ]
       },
       {
@@ -583,7 +658,7 @@
             notes: ["מומלץ להזמין שולחן מראש.", "זה הדינר האמיתי של הערב — להגיע עם תיאבון."],
             searchQuery: "NeM Sitges restaurant", mapQuery: "NeM Sitges",
             originHint: "El Cable Sitges", transportType: "walking",
-            bookingRequired: true, bookingSearchQuery: "NeM Sitges reservation" }, // ← אם יש לינק הזמנה אמיתי, החליפו ל-bookingUrl
+            priority: "recommended", bookingRequired: true, bookingSearchQuery: "NeM Sitges reservation" }, // ← אם יש לינק הזמנה אמיתי, החליפו ל-bookingUrl
           { id: "fri-back", time: "22:15", title: "יציאה לרכבת וחזרה לברצלונה", emoji: "🚆", category: "transport",
             placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
             description: "אחרי NeM — הליכה רגועה לתחנת סיטג׳ס, רכבת R2 חזרה לברצלונה, ואז מקלחת והתארגנות.",
@@ -598,7 +673,7 @@
             notes: ["אם רוצים לשבת — חובה להזמין מראש.", "אפשר גם לדלג ולשמור אנרגיה לסאונה."],
             searchQuery: "Gala Restaurante Barcelona", mapQuery: "Gala Restaurante Barcelona",
             originHint: HOTEL, transportType: "transit",
-            bookingRequired: true, bookingUrl: "http://www.galarestaurante.com/" }, // ← לינק הזמנה אמיתי
+            priority: "must", bookingRequired: true, bookingUrl: "http://www.galarestaurante.com/" }, // ← לינק הזמנה אמיתי
           { id: "fri-sauna", time: "00:30", sortMinutes: 1470, title: "סאונה של שישי בלילה", emoji: "🧖‍♂️", category: "sauna",
             placeName: "Sauna Casanova", city: "Barcelona", coords: [41.3855, 2.1615],
             description: "אופציה ללילה מאוחר. בחרו את הסאונה שמתאימה לכם מבין האפשרויות.",
@@ -627,7 +702,7 @@
             notes: ["חובה להזמין כרטיסים מראש.", "להגיע 10–15 דק׳ לפני הזמן בכרטיס."],
             searchQuery: "Sagrada Familia Barcelona tickets", mapQuery: "Sagrada Familia Barcelona",
             originHint: HOTEL, transportType: "metro",
-            ticketRequired: true, ticketUrl: "https://sagradafamilia.org/en/web/guest/sagrada-familia-ticket" }, // ← כרטיסים אמיתי
+            priority: "must", ticketRequired: true, ticketUrl: "https://sagradafamilia.org/en/web/guest/sagrada-familia-ticket" }, // ← כרטיסים אמיתי
           { id: "sat-brunch", time: "12:00", title: "בראנץ׳ מושחת וצעיר", emoji: "🍳", category: "food",
             placeName: "Billy Brunch", city: "Barcelona", coords: [41.4050, 2.1760],
             description: "בראנץ׳ בסניף ליד הסגרדה, מושלם אחרי הביקור.",
@@ -675,14 +750,14 @@
             notes: ["להגיע בזמן של הכרטיס.", "נעליים נוחות יעשו את ההבדל בעליות."],
             searchQuery: "Park Guell Barcelona tickets", mapQuery: "Park Guell Barcelona",
             originHint: HOTEL, transportType: "transit",
-            ticketRequired: true, ticketUrl: "https://parkguell.barcelona/en/buy-tickets" }, // ← כרטיסים אמיתי
+            priority: "must", ticketRequired: true, ticketUrl: "https://parkguell.barcelona/en/buy-tickets" }, // ← כרטיסים אמיתי
           { id: "sun-boa-bao", time: "13:30", title: "צהריים אסייתי מוקפד", emoji: "🍛", category: "food",
             placeName: "Boa-Bao", city: "Barcelona", coords: [41.3880, 2.1650],
             description: "אוכל אסייתי מוקפד, רטבים עמוקים וירקות קריספיים.",
             notes: ["מומלץ להזמין שולחן מראש.", "מעולה אחרי בוקר בפארק."],
             searchQuery: "Boa-Bao Barcelona reservation", mapQuery: "Boa-Bao Barcelona",
             originHint: "Park Guell Barcelona", transportType: "transit",
-            bookingRequired: true, bookingUrl: "http://www.boabao.es/" }, // ← לינק הזמנה אמיתי
+            priority: "recommended", bookingRequired: true, bookingUrl: "http://www.boabao.es/" }, // ← לינק הזמנה אמיתי
           { id: "sun-rest", time: "15:30-17:30", title: "מנוחת צהריים אחרונה", emoji: "🛌", category: "rest",
             placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
             description: "מנוחה אחרונה לפני סיבוב ערב יפה וארוחת סיום.",
@@ -712,7 +787,7 @@
             notes: ["מומלץ להזמין שולחן מראש.", "סיום יפה לטיול בלי לחץ."],
             searchQuery: "Restaurante Harry's Barcelona", mapQuery: "Restaurante Harry's Barcelona",
             originHint: "Magic Fountain of Montjuic Barcelona", transportType: "transit",
-            bookingRequired: true, bookingUrl: "http://www.harrysbcn.com/" } // ← לינק הזמנה אמיתי
+            priority: "recommended", bookingRequired: true, bookingUrl: "http://www.harrysbcn.com/" } // ← לינק הזמנה אמיתי
         ]
       },
       {
@@ -1268,9 +1343,68 @@
       document.querySelectorAll(".stop, .day").forEach(d => d.open = false);
     });
 
+    /* ===================== Tickets & bookings modal ===================== */
+    function advanceItems() {
+      const out = [];
+      tripDays.forEach(day => day.stops.forEach(s => {
+        const isTicket = !!(s.ticketRequired || s.ticketUrl);
+        const isBooking = !!(s.bookingRequired || s.bookingUrl);
+        if (!isTicket && !isBooking) return;
+        const kind = isTicket ? "ticket" : "booking";
+        const hasDirect = !!(s.ticketUrl || s.bookingUrl);
+        const href = s.ticketUrl || s.bookingUrl
+          || googleSearchUrl(isTicket ? (s.ticketSearchQuery || s.placeName + " tickets")
+                                      : (s.bookingSearchQuery || s.placeName + " reservation"));
+        out.push({ dayLabel: day.label, time: s.time, name: s.placeName, what: s.title,
+          city: s.city, kind, hasDirect, href, optional: !!s.optional,
+          priority: s.priority || (isTicket ? "must" : "recommended") });
+      }));
+      return out;
+    }
+
+    function renderTickets() {
+      const items = advanceItems();
+      document.getElementById("ticketsCount").textContent = items.length;
+      let html = "", lastDay = "";
+      items.forEach(it => {
+        if (it.dayLabel !== lastDay) { html += `<li class="tk-day-head">${esc(it.dayLabel)}</li>`; lastDay = it.dayLabel; }
+        const kindLabel = it.kind === "ticket" ? "כרטיס כניסה" : "הזמנת שולחן";
+        const kindIcon = it.kind === "ticket" ? "🎟️" : "🍽️";
+        const ctaLabel = it.kind === "ticket" ? "כרטיסים" : "הזמנה";
+        const tierLabel = it.priority === "must" ? (it.optional ? "חובה אם הולכים" : "חובה") : "מומלץ";
+        const tierClass = it.priority === "must" ? "tier-must" : "tier-recommended";
+        html += `
+          <li class="tk-item ${it.optional ? "is-optional" : ""}">
+            <span class="tk-when"><span class="tk-kind">${kindIcon}</span><span class="tk-time">${esc(it.time)}</span></span>
+            <span class="tk-main">
+              <strong>${esc(it.name)}</strong>
+              <small><span class="tk-tier ${tierClass}">${tierLabel}</span> ${esc(it.what)} · ${esc(kindLabel)}</small>
+            </span>
+            <a class="tk-cta kind-${it.kind} ${it.hasDirect ? "" : "is-search"}" href="${esc(it.href)}" target="_blank" rel="noopener">
+              ${esc(ctaLabel)} ${it.hasDirect ? "↗" : "🔎"}
+            </a>
+          </li>`;
+      });
+      document.getElementById("ticketsList").innerHTML = html;
+    }
+
+    function openTickets() {
+      renderTickets();
+      document.getElementById("ticketsModal").hidden = false;
+      document.body.style.overflow = "hidden";
+    }
+    function closeTickets() {
+      document.getElementById("ticketsModal").hidden = true;
+      document.body.style.overflow = "";
+    }
+    document.getElementById("btnTickets").addEventListener("click", openTickets);
+    document.querySelectorAll("[data-close-tickets]").forEach(el => el.addEventListener("click", closeTickets));
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeTickets(); });
+
     /* ===================== Boot ===================== */
     render();
     updateHeader();
+    renderTickets();
     loadImages();
     loadWeather();
     setInterval(updateHeader, 30000);
