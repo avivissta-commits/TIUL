@@ -1,0 +1,1127 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d8f86">
+  <title>ברצלונה · מסלול הטיול</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f7f9;
+      --surface: #ffffff;
+      --ink: #18272d;
+      --muted: #6a7a82;
+      --line: #e2e9ec;
+      --teal: #0d8f86;
+      --teal-dark: #066a64;
+      --coral: #e85f5c;
+      --gold: #d99a21;
+      --green: #3f8555;
+      --radius: 14px;
+      --radius-sm: 10px;
+      --shadow: 0 10px 30px rgba(24, 39, 45, 0.08);
+      --shadow-sm: 0 4px 14px rgba(24, 39, 45, 0.06);
+      --safe-top: env(safe-area-inset-top, 0px);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Assistant", "Rubik", "Segoe UI", system-ui, Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.5;
+      background:
+        radial-gradient(1200px 420px at 100% -10%, rgba(232, 95, 92, 0.10), transparent 60%),
+        radial-gradient(1100px 460px at -10% 0%, rgba(13, 143, 134, 0.12), transparent 60%),
+        var(--bg);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, a { font: inherit; }
+
+    .wrap { width: min(720px, 100%); margin: 0 auto; padding: 0 12px 40px; }
+
+    /* ===== Sticky header ===== */
+    .topbar {
+      position: sticky; top: 0; z-index: 30;
+      padding-top: var(--safe-top);
+      background: rgba(245, 247, 249, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(226, 233, 236, 0.9);
+    }
+    .topbar-inner { width: min(720px, 100%); margin: 0 auto; padding: 9px 12px 10px; display: grid; gap: 9px; }
+
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-mark {
+      width: 38px; height: 38px; flex: 0 0 auto; border-radius: 12px;
+      display: grid; place-items: center; font-size: 1.2rem;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      box-shadow: var(--shadow-sm);
+    }
+    .brand-text { min-width: 0; }
+    .brand-text h1 { margin: 0; font-size: 1.05rem; font-weight: 700; line-height: 1.1; }
+    .brand-text p { margin: 1px 0 0; font-size: 0.78rem; color: var(--muted); }
+
+    /* Now strip */
+    .now-strip {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 12px; padding: 7px 9px; box-shadow: var(--shadow-sm);
+    }
+    .now-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 0.82rem; font-weight: 600; }
+    .now-chip .lbl { color: var(--muted); font-weight: 600; }
+    .now-strip .now-next { flex: 1 1 auto; min-width: 0; color: var(--ink); font-weight: 500; font-size: 0.83rem;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .now-strip .now-next b { color: var(--teal-dark); }
+    .now-nav {
+      flex: 0 0 auto; display: inline-flex; align-items: center; gap: 5px;
+      background: var(--teal); color: #fff; border-radius: 9px; padding: 6px 10px;
+      font-size: 0.8rem; font-weight: 600; min-height: 32px;
+    }
+    .now-nav.is-off { background: #e5ebed; color: var(--muted); pointer-events: none; }
+
+    /* Controls */
+    .controls { display: flex; gap: 7px; flex-wrap: wrap; }
+    .ctrl {
+      flex: 1 1 auto; min-height: 36px; border: 1px solid var(--line);
+      background: var(--surface); color: var(--ink); border-radius: 10px;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer; padding: 6px 8px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease, color .12s ease;
+    }
+    .ctrl:active { transform: scale(0.97); }
+    .ctrl.is-on { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+    .progress-line { font-size: 0.76rem; color: var(--muted); padding: 0 2px; }
+
+    /* ===== Day accordion ===== */
+    .day {
+      margin-top: 12px; background: var(--surface);
+      border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden;
+      transition: opacity .22s ease, filter .22s ease, transform .22s ease;
+    }
+    /* כשיום פתוח — שאר הימים דועכים כדי שיהיה ברור איפה אנחנו */
+    #days.has-open .day:not([open]) {
+      opacity: .46; filter: saturate(.7);
+    }
+    #days.has-open .day:not([open]):hover { opacity: .8; }
+    .day > summary { list-style: none; cursor: pointer; padding: 12px; }
+    .day > summary::-webkit-details-marker { display: none; }
+    .day-head { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 11px; }
+    .day-icon {
+      width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+      font-size: 1.35rem; background: linear-gradient(135deg, rgba(13,143,134,.14), rgba(217,154,33,.14));
+    }
+    .day-titles h2 { margin: 0; font-size: 1.02rem; font-weight: 700; line-height: 1.15; }
+    .day-titles p { margin: 2px 0 0; font-size: 0.79rem; color: var(--muted); line-height: 1.3;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .day-meta { display: grid; gap: 4px; justify-items: end; }
+    .pill-count {
+      font-size: 0.72rem; font-weight: 600; color: var(--teal-dark);
+      background: rgba(13,143,134,.10); border-radius: 999px; padding: 3px 9px; white-space: nowrap;
+    }
+    .day-chev { font-size: 1.1rem; color: var(--muted); transition: transform .2s ease; }
+    .day[open] .day-chev { transform: rotate(180deg); }
+
+    .day-body { padding: 0 12px 12px; }
+
+    /* Day helper chips */
+    .helper { display: flex; gap: 6px; margin-bottom: 11px; }
+    .helper-chip {
+      flex: 1 1 0; min-height: 38px; border: 1px solid var(--line); background: #fbfdfd;
+      border-radius: 10px; cursor: pointer; display: grid; place-items: center; gap: 0;
+      font-size: 0.74rem; font-weight: 600; color: var(--ink); padding: 4px;
+    }
+    .helper-chip .ic { font-size: 0.95rem; }
+    .helper-chip.is-on { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .helper-panel {
+      border: 1px solid var(--line); border-radius: 10px; background: #fbfdfd;
+      padding: 10px 11px; margin-bottom: 11px; font-size: 0.85rem; color: #2c3f46;
+    }
+    .helper-panel[hidden] { display: none; }
+    .helper-panel .weather-row { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; }
+    .helper-panel .weather-row strong { font-weight: 600; }
+    .helper-panel .weather-row small { color: var(--muted); }
+    .helper-panel .advice { margin: 6px 0 0; padding: 7px 9px; border-radius: 9px;
+      background: #fff6e6; color: #6c4d12; border: 1px solid rgba(217,154,33,.25); font-size: 0.8rem; }
+
+    /* ===== Stops timeline ===== */
+    .timeline { display: grid; }
+
+    .stop {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius-sm); overflow: hidden; box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+    .stop::before {
+      content: ""; position: absolute; inset-inline-start: 0; top: 0; bottom: 0; width: 4px;
+      background: var(--cat, var(--teal));
+    }
+    .stop > summary { list-style: none; cursor: pointer; padding: 0; }
+    .stop > summary::-webkit-details-marker { display: none; }
+    .stop-row { display: grid; grid-template-columns: 28px auto 1fr auto 48px; align-items: center; gap: 8px;
+      padding: 10px 11px 10px 12px; }
+    .stop-thumb {
+      width: 48px; height: 48px; flex: 0 0 auto; border-radius: 11px; overflow: hidden;
+      border: 1px solid var(--line); background-color: #eef4f5; background-size: cover; background-position: center;
+      display: grid; place-items: center; font-size: 1.35rem;
+    }
+    .stop-thumb.is-emoji { background: linear-gradient(150deg, var(--cat-soft, rgba(13,143,134,.12)), #ffffff); }
+    .done-btn {
+      width: 30px; height: 30px; border-radius: 8px; border: 1.5px solid var(--line);
+      background: #fff; color: var(--muted); cursor: pointer; flex: 0 0 auto;
+      display: grid; place-items: center; font-size: 0.85rem; font-weight: 700;
+    }
+    .done-btn.is-done { background: var(--green); border-color: var(--green); color: #fff; }
+    .stop-time {
+      direction: ltr; font-weight: 600; font-size: 0.86rem; white-space: nowrap;
+      background: #f1f5f6; border-radius: 8px; padding: 3px 7px; color: #2a3b42;
+    }
+    .stop-main { min-width: 0; display: flex; align-items: center; gap: 7px; }
+    .stop-emoji { font-size: 1.15rem; flex: 0 0 auto; }
+    .stop-title { min-width: 0; display: grid; gap: 3px; }
+    .stop-title strong { font-size: 0.94rem; font-weight: 600; line-height: 1.2;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .stop-sub { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+    .stop-place { font-size: 0.74rem; font-weight: 500; color: var(--muted); min-width: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cat-pill { flex: 0 0 auto; font-size: 0.68rem; font-weight: 600; color: var(--cat, var(--teal-dark));
+      background: var(--cat-soft, rgba(13,143,134,.10)); border-radius: 999px; padding: 1px 8px; }
+    .stop-chev { color: var(--muted); font-size: 0.95rem; transition: transform .2s ease; }
+    .stop[open] .stop-chev { transform: rotate(180deg); }
+
+    .stop.is-done { opacity: .66; }
+    .stop.is-done .stop-title strong { text-decoration: line-through; text-decoration-color: rgba(63,133,85,.6); }
+
+    .stop-detail { padding: 0 12px 12px; display: grid; gap: 11px; }
+    .stop-desc { margin: 0; font-size: 0.88rem; color: #33454c; line-height: 1.45; }
+    .stop-info { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 0.84rem;
+      margin: -2px 0 0; }
+    .stop-info .info-place { font-weight: 600; color: #233238; }
+    .stop-info .info-city { color: var(--muted); }
+
+    /* media tiles side by side */
+    .media { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .tile {
+      position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden;
+      border: 1px solid var(--line); background: #eef4f5; display: block;
+    }
+    .tile .tile-label {
+      position: absolute; top: 7px; inset-inline-start: 7px; z-index: 3;
+      font-size: 0.68rem; font-weight: 600; color: var(--ink);
+      background: rgba(255,255,255,.92); border-radius: 7px; padding: 2px 7px;
+      box-shadow: 0 3px 10px rgba(24,39,45,.12); display: inline-flex; align-items: center; gap: 4px;
+    }
+    .tile iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block;
+      pointer-events: none; z-index: 2; }
+    .tile .tile-cta {
+      position: absolute; bottom: 7px; inset-inline-start: 7px; z-index: 3;
+      font-size: 0.7rem; font-weight: 600; color: var(--ink);
+      background: rgba(255,255,255,.94); border-radius: 7px; padding: 3px 8px;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .tile-link { z-index: 4; }
+    .tile-photo {
+      display: grid; place-items: center; text-align: center;
+      background: linear-gradient(150deg, rgba(13,143,134,.16), rgba(217,154,33,.14) 55%, rgba(232,95,92,.14));
+    }
+    .tile-photo .photo-emoji { font-size: 2.4rem; filter: drop-shadow(0 4px 8px rgba(24,39,45,.18)); }
+    .tile-photo .photo-name { margin-top: 4px; font-size: 0.72rem; font-weight: 600; color: #2c3f46;
+      max-width: 88%; line-height: 1.25; }
+    .tile-photo.has-img { background: #0e1a1f; }
+    .tile-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .tile-map .map-loader { position: absolute; inset: 0; display: grid; place-items: center;
+      color: var(--muted); font-size: 0.74rem; z-index: 1; }
+
+    /* notes */
+    .notes { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+    .notes li { position: relative; padding-inline-start: 17px; font-size: 0.82rem; color: #3a4d54; line-height: 1.4; }
+    .notes li::before { content: "•"; position: absolute; inset-inline-start: 3px; color: var(--gold); font-weight: 700; }
+
+    /* uniform action buttons */
+    .actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 7px; }
+    .act {
+      min-height: 40px; border: 1px solid var(--line); background: #fbfdfd; color: #1f3138;
+      border-radius: 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 8px;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .act:active { transform: scale(0.97); }
+    .act .act-ic { font-size: 0.95rem; }
+    .act.act-map { border-color: rgba(13,143,134,.4); }
+    .act.act-go { border-color: rgba(52,121,184,.45); }
+    .act.act-uber { background: #15252b; border-color: #15252b; color: #fff; }
+    .act.act-book { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .act.act-ticket { background: var(--coral); border-color: var(--coral); color: #fff; }
+
+    /* ===== Arrival strip inside each card (travel to reach this step) ===== */
+    .stop-leg {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 5px 12px 5px 10px; background: var(--cat-soft, #eef4f5);
+      border-bottom: 1px solid rgba(24, 39, 45, 0.06);
+    }
+    .stop-leg-info { display: inline-flex; align-items: center; gap: 7px; min-width: 0; }
+    .stop-leg-ic {
+      width: 22px; height: 22px; flex: 0 0 auto; border-radius: 999px; background: #fff;
+      display: grid; place-items: center; font-size: 0.82rem; box-shadow: var(--shadow-sm);
+    }
+    .stop-leg-text { font-size: 0.74rem; font-weight: 600; color: #51646b;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stop-leg-sep { color: #aebac0; margin: 0 1px; }
+    .stop-leg-acts { display: inline-flex; gap: 6px; flex: 0 0 auto; }
+    .stop-leg-act {
+      width: 26px; height: 26px; border-radius: 7px; background: #fff; border: 1px solid var(--line);
+      display: grid; place-items: center; font-size: 0.78rem; color: #4a5d64;
+    }
+    .stop-leg-act.uber { background: #15252b; border-color: #15252b; }
+
+    footer.note { margin-top: 22px; text-align: center; color: var(--muted); font-size: 0.74rem; line-height: 1.6; }
+
+    @media (max-width: 360px) {
+      .stop-time { font-size: 0.8rem; }
+      .actions { grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); }
+    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto; } }
+    :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">🌴</div>
+        <div class="brand-text">
+          <h1>ברצלונה · מסלול הטיול</h1>
+          <p>רביעי–שני · גוטי, חופים, סיטג׳ס וערבים</p>
+        </div>
+      </div>
+
+      <div class="now-strip">
+        <span class="now-chip"><span id="nowTime">--:--</span></span>
+        <span class="now-chip" id="nowWeatherChip" hidden><span id="nowWeather"></span></span>
+        <span class="now-next" id="nowNext">טוען את הלו״ז…</span>
+        <a class="now-nav is-off" id="nowNav" href="#" target="_blank" rel="noopener">🧭 נווט</a>
+      </div>
+
+      <div class="controls">
+        <button class="ctrl" id="btnToday" type="button">📍 רק היום</button>
+        <button class="ctrl" id="btnAll" type="button">🗂️ כל הימים</button>
+        <button class="ctrl" id="btnOpen" type="button">⬇️ פתח הכל</button>
+        <button class="ctrl" id="btnClose" type="button">⬆️ סגור הכל</button>
+      </div>
+      <div class="progress-line" id="progressLine"></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="days"></div>
+    <footer class="note">
+      תמונות האתרים המרכזיים נמשכות מויקיפדיה; לשאר אפשר להוסיף קישור תמונה בקוד (שדה image).<br>
+      קישורי מפות, ניווט ו־Uber נוצרים אוטומטית. מרחקים וזמנים הם הערכה (≈).
+    </footer>
+  </main>
+
+  <script>
+    /* =========================================================
+       נתוני הטיול — כאן עורכים ימים, תחנות, וקישורי הזמנה/כרטיסים.
+       לכל תחנה: coords:[lat,lng] משמש לחישוב מרחק/זמן בין תחנות.
+       legOverride (אופציונלי) דורס את ההערכה האוטומטית של הקטע.
+
+       תמונות:
+       • wiki:"כותרת ויקיפדיה" → התמונה תימשך אוטומטית מויקיפדיה.
+       • image:"https://..."   → תמונה משלך (גוברת על wiki). הדבק כל קישור תמונה.
+         דוגמה: image: "https://example.com/photo.jpg"
+       התמונה מופיעה גם ממוזערת בכרטיסייה הסגורה וגם בגדול כשפותחים.
+       ========================================================= */
+    const HOTEL = "Mosaic by Ona Barcelona";
+    const HOTEL_COORDS = [41.3955, 2.1585];
+
+    const CATEGORY = {
+      arrival:   { label: "הגעה",    color: "#0d8f86" },
+      rest:      { label: "מנוחה",   color: "#7a8a92" },
+      food:      { label: "אוכל",    color: "#d99a21" },
+      coffee:    { label: "קפה",     color: "#9a6b3f" },
+      drink:     { label: "דרינקים", color: "#b45aa5" },
+      beach:     { label: "חוף",     color: "#1f9bb3" },
+      shopping:  { label: "שופינג",  color: "#e07a3f" },
+      attraction:{ label: "אטרקציה", color: "#3479b8" },
+      transport: { label: "נסיעה",   color: "#5a76d6" },
+      sauna:     { label: "סאונה",   color: "#c0556b" },
+      sunset:    { label: "שקיעה",   color: "#e85f5c" },
+      park:      { label: "פארק",    color: "#3f8555" }
+    };
+
+    const MODES = {
+      walking: { icon: "🚶", label: "הליכה",            speed: 4.6 },
+      transit: { icon: "🚇", label: "תחבורה ציבורית",   speed: 15 },
+      metro:   { icon: "🚇", label: "מטרו",             speed: 18 },
+      train:   { icon: "🚆", label: "רכבת",             speed: 45 },
+      driving: { icon: "🚕", label: "מונית / Uber",     speed: 20 },
+      taxi:    { icon: "🚕", label: "מונית / Uber",     speed: 20 }
+    };
+
+    // קואורדינטות עזר ליעדי מוצא שאינם תחנה (שדה תעופה, תחנות וכו')
+    const EXTRA_COORDS = {
+      "barcelona airport": [41.2974, 2.0833],
+      "sitges station": [41.2360, 1.8113],
+      [HOTEL.toLowerCase()]: HOTEL_COORDS
+    };
+
+    const tripDays = [
+      {
+        id: "wednesday", jsDay: 3, label: "יום רביעי", icon: "🛬",
+        title: "נוחתים ומתאפסים",
+        summary: "נחיתה מאוחרת, זריקת מזוודות וטאפאס ראשון בלי לחץ.",
+        weatherCities: ["Barcelona"],
+        packing: "דרכון, מטען נייד, שכבה קלה ונעליים נוחות. אם יוצאים לטאפאס בלי לפרוק — חולצה רעננה ודאודורנט קטן בתיק.",
+        tip: "לילה ראשון — מספיק משהו קליל על הבר, בלי להפוך את זה לפרויקט.",
+        stops: [
+          { id: "wed-hotel", time: "23:30", title: "הגעה והתארגנות במלון", emoji: "🏨", category: "rest",
+            placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
+            description: "הגעה ל־Mosaic by Ona, זריקת מזוודות והתאפסות קצרה לפני יציאה קלילה.",
+            notes: ["להשאיר מטען וכרטיס אשראי נגישים.", "אם עייפים — אפשר ישר למיטה ולשמור אנרגיה לחמישי."],
+            searchQuery: HOTEL, mapQuery: HOTEL, originHint: "Barcelona Airport",
+            transportType: "driving", showUber: true,
+            legOverride: { icon: "🚕", label: "מונית מהשדה", durationText: "≈20 דק׳", distanceText: "≈15 ק״מ" } },
+          { id: "wed-tapas", time: "00:00", sortMinutes: 1440, title: "קאווה וטאפאס ללילה הראשון", emoji: "🍷", category: "drink",
+            placeName: "Cervecería Catalana", city: "Barcelona", coords: [41.3925, 2.1615],
+            description: "משהו קליל, כמה פנצ׳וס על הבר, ונכנסים לאווירה של העיר.",
+            notes: ["המטבח פתוח עד 1:00.", "אין הזמנת מקום.", "אם עמוס — קרוב יש את Vinitus."],
+            searchQuery: "Cerveceria Catalana Barcelona", mapQuery: "Cerveceria Catalana Barcelona",
+            originHint: HOTEL, transportType: "walking" }
+        ]
+      },
+      {
+        id: "thursday", jsDay: 4, label: "יום חמישי", icon: "🌊",
+        title: "העיר העתיקה, צ׳ורוס, ים נודיסטים ושקיעה",
+        summary: "בוקר גותי, שוק וצ׳ורוס, אחר כך Mar Bella ורופטופ בערב.",
+        weatherCities: ["Barcelona"],
+        packing: "נעליים נוחות, בגד ים, כפכפים, קרם הגנה, משקפי שמש ותיק קטן. לערב — חולצה קלילה להחלפה לרופטופ.",
+        tip: "היום עובר מעיר עתיקה לחוף ואז לרופטופ — תיק קטן ומסודר חוסך התרוצצות.",
+        stops: [
+          { id: "thu-brunch", time: "10:00", title: "בראנץ׳ בלב העיר העתיקה", emoji: "🥞", category: "food",
+            placeName: "Bloome by Sasha", city: "Barcelona", coords: [41.3835, 2.1770],
+            description: "פתיחה רגועה וטעימה בלב הרובע הגותי.",
+            notes: ["מומלץ להזמין שולחן מראש.", "נקודת פתיחה טובה להליכה בעיר העתיקה."],
+            searchQuery: "Bloome By Sasha Brunch Sin Gluten Gotico", mapQuery: "Bloome by Sasha Gothic Quarter Barcelona",
+            originHint: HOTEL, transportType: "transit",
+            bookingRequired: true, bookingUrl: "https://www.bloomebysasha.es/brunch-gotico" }, // ← לינק הזמנה אמיתי
+          { id: "thu-gothic", time: "11:30", title: "היסטוריה ונשנושי שוק", emoji: "⛪", category: "attraction",
+            placeName: "קתדרלת ברצלונה · קיר הנשיקה · לה בוקריה", city: "Barcelona", coords: [41.3839, 2.1762],
+            wiki: "Barcelona Cathedral",
+            description: "הליכה נינוחה בין הקתדרלה, קיר הנשיקה ושוק לה בוקריה עם נשנושי פירות וגבינות.",
+            notes: ["לא להעמיס אוכל לפני הצ׳ורוס.", "לשמור על התיק באזורים עמוסים."],
+            searchQuery: "Barcelona Cathedral Kiss Mural La Boqueria", mapQuery: "Barcelona Cathedral",
+            originHint: "Bloome by Sasha Barcelona", transportType: "walking" },
+          { id: "thu-churros", time: "13:30", title: "הצ׳ורוס הוויראלי", emoji: "🍩", category: "food",
+            placeName: "Xurreria Manuel San Roman", city: "Barcelona", coords: [41.3826, 2.1745],
+            description: "עצירה מתוקה לצ׳ורוס המפורסם, בערך 5 דקות מהשוק.",
+            notes: ["להגיע עם מקום קטן בבטן.", "יכול להיות תור — אבל זו עצירה קצרה."],
+            searchQuery: "Xurreria Manuel San Roman Barcelona", mapQuery: "Xurreria Manuel San Roman Barcelona",
+            originHint: "La Boqueria Barcelona", transportType: "walking" },
+          { id: "thu-mar-bella", time: "14:00", title: "הים של הקהילה", emoji: "🏖️", category: "beach",
+            placeName: "Platja de la Mar Bella", city: "Barcelona", coords: [41.3985, 2.2120],
+            description: "חוף גאה ונודיסטים עם אווירה חופשית. יושבים ב־Chiringuito BeGay, מיטת שיזוף, קוקטייל וקפיצה למים.",
+            notes: ["הגעה במונית מהעיר העתיקה.", "בגד ים וכפכפים כבר מהבוקר.", "קרם הגנה ומשקפי שמש — חובה."],
+            searchQuery: "Platja de la Mar Bella Chiringuito BeGay Barcelona", mapQuery: "Platja de la Mar Bella Barcelona",
+            originHint: "Xurreria Manuel San Roman Barcelona", transportType: "driving", showUber: true },
+          { id: "thu-siesta", time: "17:30-20:00", title: "סייסטה במלון", emoji: "🛌", category: "rest",
+            placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
+            description: "מקלחת טובה, מנוחה במזגן והתארגנות לערב.",
+            notes: ["לייבש בגד ים ומגבת.", "לטעון טלפון לפני הרופטופ."],
+            searchQuery: HOTEL, mapQuery: HOTEL, originHint: "Platja de la Mar Bella Barcelona",
+            transportType: "driving", showUber: true },
+          { id: "thu-rooftop", time: "20:00", title: "קוקטייל שקיעה על הרופטופ", emoji: "🍸", category: "sunset",
+            placeName: "The Barcelona Edition Rooftop", city: "Barcelona", coords: [41.3866, 2.1735],
+            description: "רופטופ יוקרתי מול הנוף. כדאי להגיע קצת לפני השקיעה ולתפוס מקום יפה.",
+            notes: ["לוק קליל לערב יעבוד כאן טוב.", "אם יש רוח — שכבה דקה תציל את הערב."],
+            searchQuery: "The Barcelona Edition Rooftop", mapQuery: "The Barcelona Edition Rooftop Barcelona",
+            originHint: HOTEL, transportType: "transit" },
+          { id: "thu-robata", time: "22:00", title: "ארוחת ערב סושי ואסייתי", emoji: "🍣", category: "food",
+            placeName: "Robata", city: "Barcelona", coords: [41.3905, 2.1600],
+            description: "באישמפלה, אווירה חשוכה ומודרנית, סושי/אסייתי לערב נעים.",
+            notes: ["מומלץ להזמין שולחן מראש.", "מתאים אחרי רופטופ בלי להתרוצץ."],
+            searchQuery: "Robata Barcelona", mapQuery: "Robata Barcelona",
+            originHint: "The Barcelona Edition Barcelona", transportType: "transit",
+            bookingRequired: true, bookingUrl: "https://robata.es/" } // ← לינק הזמנה אמיתי
+        ]
+      },
+      {
+        id: "friday", jsDay: 5, label: "יום שישי", icon: "🛍️",
+        title: "קניות, סיטג׳ס החופשית וסאונה של שישי",
+        summary: "שופינג יעיל, רכבת לסיטג׳ס, חוף וטאפאס, וערב בעיר.",
+        weatherCities: ["Barcelona", "Sitges"],
+        packing: "תיק קל, בגד ים, כפכפים, קרם הגנה, בקבוק מים ומטען נייד. משהו קטן להחלפה לערב אם לא רוצים להיתקע.",
+        tip: "בסיטג׳ס עדיף להסתובב קליל — רק מה שבאמת צריך לחוף ולרכבת.",
+        stops: [
+          { id: "fri-coffee", time: "09:30", title: "קפה של בוקר", emoji: "☕", category: "coffee",
+            placeName: "LA PAPA", city: "Barcelona", coords: [41.3935, 2.1605],
+            description: "קפה ומאפים אסתטיים באישמפלה לפני יום עמוס.",
+            notes: ["להתחיל עם סוללה מלאה.", "בוקר טוב לקנייה מרוכזת."],
+            searchQuery: "LA PAPA Barcelona Eixample", mapQuery: "LA PAPA Barcelona",
+            originHint: HOTEL, transportType: "walking" },
+          { id: "fri-shopping", time: "10:30", title: "שופינג ואדריכלות גאודי", emoji: "👗", category: "shopping",
+            placeName: "Passeig de Gràcia", city: "Barcelona", coords: [41.3915, 2.1650],
+            wiki: "Passeig de Gràcia",
+            description: "הליכה על Passeig de Gràcia, Casa Milà ו־Casa Batlló מבחוץ, ואז זארה הענקית בכיכר קטלוניה.",
+            notes: ["לשמור קבלות.", "קניות יעילות — לא להיסחף לפני סיטג׳ס."],
+            searchQuery: "Passeig de Gracia Casa Batllo Casa Mila Zara Placa Catalunya", mapQuery: "Passeig de Gracia Barcelona",
+            originHint: "LA PAPA Barcelona", transportType: "walking" },
+          { id: "fri-rest", time: "13:30-15:30", title: "פריקת שקיות ומנוחה", emoji: "🛌", category: "rest",
+            placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
+            description: "זורקים שקיות במלון, נחים שעתיים ומתארגנים לרכבת ולחוף.",
+            notes: ["לוודא שבגד ים וכפכפים בתיק.", "לטעון טלפון לפני הרכבת."],
+            searchQuery: HOTEL, mapQuery: HOTEL, originHint: "Zara Placa Catalunya Barcelona", transportType: "walking" },
+          { id: "fri-train", time: "15:30", title: "נסיעה לעיירת החוף סיטג׳ס", emoji: "🚆", category: "transport",
+            placeName: "תחנת Passeig de Gràcia", city: "Barcelona", coords: [41.3917, 2.1648],
+            description: "הליכה לתחנת Passeig de Gràcia ואז רכבת R2S לסיטג׳ס, כ־40 דקות.",
+            notes: ["לבדוק רציף וזמנים באפליקציית מפות.", "מים לפני העלייה לרכבת."],
+            searchQuery: "R2S Passeig de Gracia to Sitges train", mapQuery: "Passeig de Gracia Station Barcelona",
+            originHint: HOTEL, transportType: "transit",
+            legOverride: { icon: "🚶", label: "הליכה לתחנה", durationText: "≈12 דק׳", distanceText: "≈0.9 ק״מ" } },
+          { id: "fri-balmins", time: "16:30", title: "מפרץ הנודיסטים בסיטג׳ס", emoji: "🏖️", category: "beach",
+            placeName: "Platja dels Balmins", city: "Sitges", coords: [41.2400, 1.8120],
+            description: "מפרץ יפה, מים צלולים, חוף מעורב/נודיסטים. אופציה רגועה יותר: Bassa Rodona.",
+            notes: ["להגיע עם מעט דברים.", "קרם הגנה, משקפי שמש ומגבת קטנה."],
+            searchQuery: "Platja dels Balmins Sitges Bassa Rodona", mapQuery: "Platja dels Balmins Sitges",
+            originHint: "Sitges Station", transportType: "train",
+            legOverride: { icon: "🚆", label: "רכבת R2S לסיטג׳ס", durationText: "≈40 דק׳", distanceText: "≈38 ק״מ" } },
+          { id: "fri-el-cable", time: "19:00", title: "טאפאס אותנטי בסמטאות", emoji: "🍤", category: "food",
+            placeName: "El Cable", city: "Sitges", coords: [41.2370, 1.8055],
+            description: "מוסד מקומי של הקהילה בסיטג׳ס. בירה קרה וטאפאס לפנים.",
+            notes: ["כיף לבוא קלילים מהחוף.", "לשמור זמן לרכבת חזור."],
+            searchQuery: "El Cable Sitges tapas", mapQuery: "El Cable Sitges",
+            originHint: "Platja dels Balmins Sitges", transportType: "walking" },
+          { id: "fri-back", time: "21:00", title: "חזרה למלון בברצלונה", emoji: "🚿", category: "transport",
+            placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
+            description: "חוזרים ברכבת לברצלונה, מקלחת והתארגנות מהירה לערב.",
+            notes: ["לוודא רכבת חזור נוחה.", "מקלחת משנה את כל הערב."],
+            searchQuery: "Sitges to Mosaic by Ona Barcelona train", mapQuery: HOTEL,
+            originHint: "El Cable Sitges", transportType: "train",
+            legOverride: { icon: "🚆", label: "רכבת חזרה לברצלונה", durationText: "≈45 דק׳", distanceText: "≈38 ק״מ" } },
+          { id: "fri-gala", time: "22:30", title: "ארוחת ערב / דרינקים משוגעים", emoji: "🎠", category: "food",
+            placeName: "Gala", city: "Barcelona", coords: [41.3880, 2.1660],
+            description: "מסעדה עם קרוסלת סוסים וחדר מראות. ערב צבעוני ומוגזם במידה הנכונה.",
+            notes: ["חובה להזמין הרבה זמן מראש.", "להגיע בזמן אחרי החזרה מסיטג׳ס."],
+            searchQuery: "Gala Restaurante Barcelona", mapQuery: "Gala Restaurante Barcelona",
+            originHint: HOTEL, transportType: "transit",
+            bookingRequired: true, bookingUrl: "http://www.galarestaurante.com/" }, // ← לינק הזמנה אמיתי
+          { id: "fri-sauna", time: "00:30", sortMinutes: 1470, title: "סאונה של שישי בלילה", emoji: "🧖‍♂️", category: "sauna",
+            placeName: "Sauna Casanova", city: "Barcelona", coords: [41.3855, 2.1615],
+            description: "אופציה ללילה מאוחר, קרוב למלון באישמפלה.",
+            notes: ["כפכפים, תיק קטן ובקבוק מים.", "אם לא חוזרים לחדר — להכין בגדים להחלפה מראש."],
+            searchQuery: "Sauna Casanova Barcelona", mapQuery: "Sauna Casanova Barcelona",
+            originHint: "Gala Restaurante Barcelona", transportType: "walking" }
+        ]
+      },
+      {
+        id: "saturday", jsDay: 6, label: "יום שבת", icon: "⛪",
+        title: "סגרדה, צ׳יל וסאונה לתוך הלילה",
+        summary: "סגרדה פמיליה, בראנץ׳, סייסטה ארוכה, שקיעה בבונקרים ולילה חופשי.",
+        weatherCities: ["Barcelona"],
+        packing: "נעליים נוחות, מים, כובע/משקפי שמש, מטען נייד ושכבה קלה לשקיעה. לסאונה — כפכפים ותיק קטן.",
+        tip: "לבונקרים כדאי להגיע לפני השקיעה, ויכול להיות קריר למעלה — שכבה קלה עושה את ההבדל.",
+        stops: [
+          { id: "sat-sagrada", time: "10:00", title: "סגרדה פמיליה", emoji: "🌟", category: "attraction",
+            placeName: "Sagrada Família", city: "Barcelona", coords: [41.4036, 2.1744],
+            wiki: "Sagrada Família",
+            description: "ביקור בסגרדה פמיליה. מגיעים במטרו L2 ישירות לתחנה.",
+            notes: ["חובה להזמין כרטיסים מראש.", "להגיע 10–15 דק׳ לפני הזמן בכרטיס."],
+            searchQuery: "Sagrada Familia Barcelona tickets", mapQuery: "Sagrada Familia Barcelona",
+            originHint: HOTEL, transportType: "metro",
+            ticketRequired: true, ticketUrl: "https://sagradafamilia.org/en/web/guest/sagrada-familia-ticket" }, // ← כרטיסים אמיתי
+          { id: "sat-brunch", time: "12:00", title: "בראנץ׳ מושחת וצעיר", emoji: "🍳", category: "food",
+            placeName: "Billy Brunch", city: "Barcelona", coords: [41.4050, 2.1760],
+            description: "בראנץ׳ בסניף ליד הסגרדה, מושלם אחרי הביקור.",
+            notes: ["לא להכביד מדי אם רוצים לנוח טוב בצהריים."],
+            searchQuery: "Billy Brunch Sagrada Familia Barcelona", mapQuery: "Billy Brunch Sagrada Familia Barcelona",
+            originHint: "Sagrada Familia Barcelona", transportType: "walking" },
+          { id: "sat-siesta", time: "14:00-18:30", title: "סייסטה ארוכה וזמן פנוי", emoji: "🛌", category: "rest",
+            placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
+            description: "לנוח בחדר, תנומה טובה ולהגיע חדים למוצ״ש.",
+            notes: ["לטעון טלפון ומטען נייד.", "להכין שכבה קלה לבונקרים."],
+            searchQuery: HOTEL, mapQuery: HOTEL, originHint: "Billy Brunch Barcelona", transportType: "transit" },
+          { id: "sat-bunkers", time: "19:00", title: "שקיעה פנורמית", emoji: "🌇", category: "sunset",
+            placeName: "Bunkers del Carmel", city: "Barcelona", coords: [41.4191, 2.1620],
+            wiki: "Turó de la Rovira",
+            description: "תצפית פנורמית לשקיעה. מונית הלוך חוסכת אנרגיה.",
+            notes: ["להגיע קצת לפני השקיעה.", "יכול להיות קריר ורוחי למעלה."],
+            searchQuery: "Bunkers del Carmel Barcelona", mapQuery: "Bunkers del Carmel Barcelona",
+            originHint: HOTEL, transportType: "driving", showUber: true },
+          { id: "sat-free-evening", time: "21:00", title: "ערב חופשי ומשוחרר", emoji: "🍔", category: "food",
+            placeName: "Eixample", city: "Barcelona", coords: [41.3915, 2.1620],
+            description: "משהו קליל באישמפלה — המבורגר/פיצה מרגיעה, כדי לא להיות כבדים.",
+            notes: ["להשאיר אנרגיה ללילה.", "לא חייבים לתכנן יותר מדי."],
+            searchQuery: "Eixample Barcelona burgers pizza", mapQuery: "Eixample Barcelona",
+            originHint: "Bunkers del Carmel Barcelona", transportType: "driving", showUber: true },
+          { id: "sat-sauna", time: "23:30", title: "ליל הסאונה המרכזי", emoji: "🧖‍♂️", category: "sauna",
+            placeName: "Sauna Casanova", city: "Barcelona", coords: [41.3855, 2.1615],
+            description: "מוצ״ש הוא הזמן המרכזי של המקום.",
+            notes: ["כפכפים, מים ותיק קטן.", "לא כבדים מדי אחרי האוכל."],
+            searchQuery: "Sauna Casanova Barcelona", mapQuery: "Sauna Casanova Barcelona",
+            originHint: HOTEL, transportType: "walking" }
+        ]
+      },
+      {
+        id: "sunday", jsDay: 0, label: "יום ראשון", icon: "⛲",
+        title: "גואל, הפארק החי וארוחת סיום אלגנטית",
+        summary: "יום טבע ואווירה: פארק גואל, צהריים, פארק המצודה, מזרקה וארוחת סיום.",
+        weatherCities: ["Barcelona"],
+        packing: "נעליים נוחות, מים, כובע, משקפי שמש ושכבה קלה לערב. יום של פארקים — תיק נוח ולא כבד.",
+        tip: "החנויות סגורות בראשון — יום מושלם לטבע, אוכל ואווירה בלי לחץ קניות.",
+        stops: [
+          { id: "sun-guell", time: "10:00", title: "פארק גואל", emoji: "🦎", category: "park",
+            placeName: "Park Güell", city: "Barcelona", coords: [41.4145, 2.1527],
+            wiki: "Park Güell",
+            description: "ביקור בפארק גואל. חובה להזמין כרטיסים מראש.",
+            notes: ["להגיע בזמן של הכרטיס.", "נעליים נוחות יעשו את ההבדל בעליות."],
+            searchQuery: "Park Guell Barcelona tickets", mapQuery: "Park Guell Barcelona",
+            originHint: HOTEL, transportType: "transit",
+            ticketRequired: true, ticketUrl: "https://parkguell.barcelona/en/buy-tickets" }, // ← כרטיסים אמיתי
+          { id: "sun-boa-bao", time: "13:30", title: "צהריים אסייתי מוקפד", emoji: "🍛", category: "food",
+            placeName: "Boa-Bao", city: "Barcelona", coords: [41.3880, 2.1650],
+            description: "אוכל אסייתי מוקפד, רטבים עמוקים וירקות קריספיים.",
+            notes: ["מומלץ להזמין שולחן מראש.", "מעולה אחרי בוקר בפארק."],
+            searchQuery: "Boa-Bao Barcelona reservation", mapQuery: "Boa-Bao Barcelona",
+            originHint: "Park Guell Barcelona", transportType: "transit",
+            bookingRequired: true, bookingUrl: "http://www.boabao.es/" }, // ← לינק הזמנה אמיתי
+          { id: "sun-rest", time: "15:30-17:30", title: "מנוחת צהריים אחרונה", emoji: "🛌", category: "rest",
+            placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
+            description: "מנוחה אחרונה לפני סיבוב ערב יפה וארוחת סיום.",
+            notes: ["לטעון טלפון.", "להחליף ללוק נוח לערב."],
+            searchQuery: HOTEL, mapQuery: HOTEL, originHint: "Boa-Bao Barcelona", transportType: "transit" },
+          { id: "sun-ciutadella", time: "18:00", title: "פארק המצודה בשיאו", emoji: "🌳", category: "park",
+            placeName: "Parc de la Ciutadella", city: "Barcelona", coords: [41.3911, 2.1806],
+            wiki: "Parc de la Ciutadella",
+            description: "שער הניצחון ואז Parc de la Ciutadella. בראשון מלא בצעירים, גיטרות וריקודים.",
+            notes: ["מים ומשהו קטן לנשנש.", "להשאיר זמן מעבר למונז׳ואיק."],
+            searchQuery: "Arc de Triomf Parc de la Ciutadella Barcelona", mapQuery: "Arc de Triomf Barcelona",
+            originHint: HOTEL, transportType: "transit" },
+          { id: "sun-fountain", time: "20:30", title: "מזרקת הקסם של מונז׳ואיק", emoji: "💦", category: "attraction",
+            placeName: "Magic Fountain of Montjuïc", city: "Barcelona", coords: [41.3711, 2.1517],
+            wiki: "Magic Fountain of Montjuïc",
+            description: "מופע מים ואורות רומנטי בפלאסה אספניה, אם פעיל.",
+            notes: ["לבדוק בגוגל לפני: Is Magic Fountain open.", "בגלל תקנות מים ייתכנו שינויים/סגירות."],
+            searchQuery: "Is Magic Fountain open Barcelona", mapQuery: "Magic Fountain of Montjuic Barcelona",
+            originHint: "Parc de la Ciutadella Barcelona", transportType: "transit" },
+          { id: "sun-harrys", time: "22:00", title: "ארוחת סיום אלגנטית", emoji: "🥩", category: "food",
+            placeName: "Restaurante Harry's", city: "Barcelona", coords: [41.3885, 2.1580],
+            description: "ארוחת ערב קלאסית ושיקית עם קוקטיילים מעולים באישמפלה.",
+            notes: ["מומלץ להזמין שולחן מראש.", "סיום יפה לטיול בלי לחץ."],
+            searchQuery: "Restaurante Harry's Barcelona", mapQuery: "Restaurante Harry's Barcelona",
+            originHint: "Magic Fountain of Montjuic Barcelona", transportType: "transit",
+            bookingRequired: true, bookingUrl: "http://www.harrysbcn.com/" } // ← לינק הזמנה אמיתי
+        ]
+      },
+      {
+        id: "monday", jsDay: 1, label: "יום שני", icon: "✈️",
+        title: "טסים הביתה",
+        summary: "בוקר רגוע, קפה זריז והגעה מסודרת לשדה.",
+        weatherCities: ["Barcelona"],
+        packing: "דרכון, ארנק, מטען, אוזניות ובקבוק מים ריק בתיק יד. להשאיר מקום למתנות קטנות אם נשארו.",
+        tip: "ביום חזרה עדיף פשוט: קפה, בדיקת חדר, ואז שדה בלי דרמות.",
+        stops: [
+          { id: "mon-coffee", time: "09:30", title: "קפה זריז ליד המלון", emoji: "☕", category: "coffee",
+            placeName: "מאפייה ליד המלון", city: "Barcelona", coords: HOTEL_COORDS,
+            description: "קמים ברוגע, קפה ומאפה קרוב למלון בלי לפתוח מסע חדש.",
+            notes: ["לבדוק כספת/מטענים/מקלחת.", "דרכון וכרטיסים במקום נגיש."],
+            searchQuery: "bakery near Mosaic by Ona Barcelona", mapQuery: "bakery near Mosaic by Ona Barcelona",
+            originHint: HOTEL, transportType: "walking" },
+          { id: "mon-airport", time: "11:00", title: "מונית או Aerobús לשדה", emoji: "✈️", category: "transport",
+            placeName: "Barcelona Airport", city: "Barcelona", coords: [41.2974, 2.0833],
+            description: "נסיעה לשדה התעופה במונית או Aerobús, לפי זמן הטיסה והאנרגיה.",
+            notes: ["להשאיר מרווח ביטחון.", "עם הרבה מזוודות — מונית הכי קלה."],
+            searchQuery: "Aerobus Barcelona Airport", mapQuery: "Barcelona Airport",
+            originHint: HOTEL, transportType: "driving", showUber: true,
+            legOverride: { icon: "🚕", label: "מונית / Aerobús", durationText: "≈25 דק׳", distanceText: "≈15 ק״מ" } }
+        ]
+      }
+    ];
+
+    /* ===================== כלי עזר ===================== */
+    const WEATHER_CITIES = {
+      Barcelona: { label: "ברצלונה", latitude: 41.3874, longitude: 2.1686, timezone: "Europe/Madrid" },
+      Sitges:    { label: "סיטג׳ס",  latitude: 41.2372, longitude: 1.8059, timezone: "Europe/Madrid" }
+    };
+    const DONE_KEY = "bcn-trip-done-v2";
+    const IMG_KEY = "bcn-trip-img-v1";
+    let doneStops = loadDone();
+    let imageCache = loadImageCache();
+    let weatherCache = {};
+    let onlyToday = false;
+
+    // אינדקס קואורדינטות מכל התחנות + יעדי עזר, לשם פתרון originHint
+    const coordIndex = Object.assign({}, EXTRA_COORDS);
+    tripDays.forEach(d => d.stops.forEach(s => {
+      if (s.coords) {
+        [s.placeName, s.mapQuery, s.searchQuery].forEach(k => {
+          if (k) coordIndex[String(k).toLowerCase()] = s.coords;
+        });
+      }
+    }));
+
+    function norm(t) { return String(t || "").toLowerCase().trim(); }
+    function resolveCoords(text) {
+      const key = norm(text);
+      if (!key) return null;
+      if (coordIndex[key]) return coordIndex[key];
+      for (const k in coordIndex) { if (key.includes(k) || k.includes(key)) return coordIndex[k]; }
+      return null;
+    }
+
+    function esc(v) {
+      return String(v ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+    }
+    function loadDone() { try { return new Set(JSON.parse(localStorage.getItem(DONE_KEY) || "[]")); } catch { return new Set(); } }
+    function saveDone() { try { localStorage.setItem(DONE_KEY, JSON.stringify([...doneStops])); } catch {} }
+    function loadImageCache() { try { return JSON.parse(localStorage.getItem(IMG_KEY) || "{}"); } catch { return {}; } }
+    function saveImageCache() { try { localStorage.setItem(IMG_KEY, JSON.stringify(imageCache)); } catch {} }
+    function stopImage(s) { if (s.image) return s.image; const c = imageCache[s.id]; return c || null; }
+
+    function haversineKm(a, b) {
+      const R = 6371, toRad = x => x * Math.PI / 180;
+      const dLat = toRad(b[0]-a[0]), dLon = toRad(b[1]-a[1]);
+      const s = Math.sin(dLat/2)**2 + Math.cos(toRad(a[0]))*Math.cos(toRad(b[0]))*Math.sin(dLon/2)**2;
+      return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1-s));
+    }
+    function fmtDist(km) {
+      if (km < 1) return "≈" + (Math.round(km*1000/50)*50) + " מ׳";
+      return "≈" + (km < 10 ? km.toFixed(1) : Math.round(km)) + " ק״מ";
+    }
+    function fmtDur(min) {
+      min = Math.max(1, Math.round(min));
+      if (min < 60) return "≈" + min + " דק׳";
+      const h = Math.floor(min/60), m = min%60;
+      return "≈" + h + " שע׳" + (m ? " " + m + " דק׳" : "");
+    }
+    function estimateLeg(origin, dest, mode) {
+      if (!origin || !dest) return null;
+      const km = haversineKm(origin, dest) * 1.3; // factor for real roads
+      if (km < 0.08) return { distanceText: "", durationText: "קרוב מאוד" }; // אותו אזור/מבנה
+      const speed = (MODES[mode] || MODES.transit).speed;
+      return { distanceText: fmtDist(km), durationText: fmtDur(km / speed * 60) };
+    }
+
+    /* ===== URL builders ===== */
+    function mapSearchUrl(q, city) {
+      const suf = city && !norm(q).includes(norm(city)) ? " " + city : "";
+      return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q + suf);
+    }
+    function mapEmbedUrl(coords) {
+      // הטמעת OpenStreetMap (חינמי, אמין, לא נחסם) עם סיכה לפי קואורדינטות
+      if (!coords || coords.length !== 2) return "";
+      const [lat, lng] = coords, d = 0.006;
+      const bbox = [lng - d, lat - d, lng + d, lat + d].join(",");
+      return "https://www.openstreetmap.org/export/embed.html?bbox=" + encodeURIComponent(bbox)
+        + "&layer=mapnik&marker=" + lat + "," + lng;
+    }
+    function directionsUrl(origin, dest, mode) {
+      const tm = mode === "walking" ? "walking" : ["transit","train","metro"].includes(mode) ? "transit" : "driving";
+      return "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(origin) +
+        "&destination=" + encodeURIComponent(dest) + "&travelmode=" + tm;
+    }
+    function uberUrl(dest) {
+      return "https://m.uber.com/ul/?action=setPickup&dropoff%5Bformatted_address%5D=" + encodeURIComponent(dest);
+    }
+    function googleSearchUrl(q) { return "https://www.google.com/search?q=" + encodeURIComponent(q); }
+    function imageSearchUrl(q, city) {
+      const suf = city && !norm(q).includes(norm(city)) ? " " + city : "";
+      return "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(q + suf);
+    }
+    function dest(stop) { return stop.mapQuery || stop.placeName || stop.searchQuery || (stop.title + " " + (stop.city||"Barcelona")); }
+    function destWithCity(stop) {
+      const d = dest(stop), c = stop.city || "Barcelona";
+      return norm(d).includes(norm(c)) ? d : d + ", " + c;
+    }
+
+    /* ===================== רינדור ===================== */
+    function activeDayInfo() {
+      const now = barcelonaNow();
+      const prevJs = (now.jsDay + 6) % 7;
+      const prevDay = tripDays.find(d => d.jsDay === prevJs);
+      if (now.minutes < 180 && prevDay && prevDay.stops.some(s => stopMinutes(s) >= 1440)) {
+        return { day: prevDay, minutes: now.minutes + 1440 };
+      }
+      return { day: tripDays.find(d => d.jsDay === now.jsDay) || null, minutes: now.minutes };
+    }
+    function stopMinutes(s) { if (typeof s.sortMinutes === "number") return s.sortMinutes;
+      const m = String(s.time||"").match(/(\d{1,2}):(\d{2})/); return m ? +m[1]*60 + +m[2] : 0; }
+
+    function barcelonaNow() {
+      const now = new Date();
+      const p = new Intl.DateTimeFormat("en-GB", { timeZone:"Europe/Madrid", hour:"2-digit", minute:"2-digit", hourCycle:"h23" }).formatToParts(now);
+      const h = +(p.find(x=>x.type==="hour")?.value||0), mi = +(p.find(x=>x.type==="minute")?.value||0);
+      const bd = new Date(now.toLocaleString("en-US", { timeZone:"Europe/Madrid" }));
+      return { text: String(h).padStart(2,"0")+":"+String(mi).padStart(2,"0"), minutes: h*60+mi, jsDay: bd.getDay() };
+    }
+
+    function render() {
+      const info = activeDayInfo();
+      const openId = info.day?.id || "thursday";
+      document.getElementById("days").innerHTML = tripDays.map(day => {
+        const done = day.stops.filter(s => doneStops.has(s.id)).length;
+        const stopsHtml = day.stops.map((s, i) => stopHtml(s, day.stops[i-1] || null)).join("");
+        return `
+        <details class="day" data-day="${esc(day.id)}" ${day.id===openId?"open":""}>
+          <summary>
+            <div class="day-head">
+              <div class="day-icon">${esc(day.icon)}</div>
+              <div class="day-titles">
+                <h2>${esc(day.label)} · ${esc(day.title)}</h2>
+                <p>${esc(day.summary)}</p>
+              </div>
+              <div class="day-meta">
+                <span class="pill-count" id="count-${esc(day.id)}">${done}/${day.stops.length}</span>
+                <span class="day-chev">⌄</span>
+              </div>
+            </div>
+          </summary>
+          <div class="day-body">
+            <div class="helper" role="tablist">
+              <button class="helper-chip" data-helper="${esc(day.id)}:weather"><span class="ic">🌦️</span> מז״א</button>
+              <button class="helper-chip" data-helper="${esc(day.id)}:packing"><span class="ic">🎒</span> מה לקחת</button>
+              <button class="helper-chip" data-helper="${esc(day.id)}:tip"><span class="ic">✨</span> טיפ</button>
+            </div>
+            <div class="helper-panel" data-panel="${esc(day.id)}:weather" hidden><div id="weather-${esc(day.id)}">טוען מזג אוויר…</div></div>
+            <div class="helper-panel" data-panel="${esc(day.id)}:packing" hidden>${esc(day.packing)}</div>
+            <div class="helper-panel" data-panel="${esc(day.id)}:tip" hidden>${esc(day.tip)}</div>
+            <div class="timeline">${stopsHtml}</div>
+          </div>
+        </details>`;
+      }).join("");
+
+      bindEvents();
+      renderWeatherPanels();
+      updateProgress();
+      applyTodayFilter();
+    }
+
+    function stopHtml(s, prev) {
+      const cat = CATEGORY[s.category] || { label: s.category, color: "#0d8f86" };
+      const soft = cat.color + "1a";
+      const isDone = doneStops.has(s.id);
+      const d = dest(s), city = s.city;
+      const img = stopImage(s);
+      const thumb = img
+        ? `<span class="stop-thumb" data-thumb="${esc(s.id)}" style="background-image:url('${esc(img)}')"></span>`
+        : `<span class="stop-thumb is-emoji" data-thumb="${esc(s.id)}">${esc(s.emoji)}</span>`;
+      const photoInner = img
+        ? `<img src="${esc(img)}" alt="${esc(s.placeName)}" loading="lazy">`
+        : `<span class="photo-emoji">${esc(s.emoji)}</span><span class="photo-name">${esc(s.placeName)}</span>`;
+      return `
+      <details class="stop ${isDone?"is-done":""}" data-stop="${esc(s.id)}"
+        style="--cat:${cat.color};--cat-soft:${soft}">
+        <summary>
+          ${legStripHtml(s, prev)}
+          <div class="stop-row">
+            <button class="done-btn ${isDone?"is-done":""}" type="button" data-done="${esc(s.id)}" aria-pressed="${isDone}" title="סמן כבוצע">✓</button>
+            <span class="stop-time">${esc(s.time)}</span>
+            <span class="stop-main">
+              <span class="stop-emoji">${esc(s.emoji)}</span>
+              <span class="stop-title">
+                <strong>${esc(s.title)}</strong>
+                <span class="stop-sub">
+                  <span class="cat-pill">${esc(cat.label)}</span>
+                  <span class="stop-place">${esc(s.placeName)}</span>
+                </span>
+              </span>
+            </span>
+            <span class="stop-chev">⌄</span>
+            ${thumb}
+          </div>
+        </summary>
+        <div class="stop-detail">
+          <div class="stop-info">
+            <span class="info-place">📍 ${esc(s.placeName)}</span>
+            ${s.city ? `<span class="info-city">${esc(cityHe(s.city))}</span>` : ""}
+          </div>
+          <p class="stop-desc">${esc(s.description)}</p>
+          <div class="media">
+            <a class="tile tile-map tile-link" href="${esc(mapSearchUrl(d, city))}" target="_blank" rel="noopener" aria-label="פתח מפה של ${esc(s.placeName)}">
+              <span class="tile-label">🗺️ מפה</span>
+              <span class="map-loader">המפה תיטען…</span>
+              <iframe data-src="${esc(mapEmbedUrl(s.coords))}" title="מפת ${esc(s.title)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              <span class="tile-cta">פתח במפות ↗</span>
+            </a>
+            <a class="tile tile-photo tile-link ${img?"has-img":""}" data-photo="${esc(s.id)}" href="${esc(imageSearchUrl(s.placeName || d, city))}" target="_blank" rel="noopener" aria-label="תמונות של ${esc(s.placeName)}">
+              <span class="tile-label">📷 תמונות</span>
+              ${photoInner}
+              <span class="tile-cta">עוד תמונות ↗</span>
+            </a>
+          </div>
+          ${notesHtml(s.notes)}
+          <div class="actions">${actionsHtml(s)}</div>
+        </div>
+      </details>`;
+    }
+
+    function cityHe(city) { return city === "Sitges" ? "סיטג׳ס" : city === "Barcelona" ? "ברצלונה" : city; }
+
+    function notesHtml(notes) {
+      if (!notes?.length) return "";
+      return `<ul class="notes">${notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`;
+    }
+
+    function actionsHtml(s) {
+      const d = dest(s), dCity = destWithCity(s), acts = [];
+      acts.push({ cls:"act-map", ic:"📍", label:"מפה", href: mapSearchUrl(d, s.city) });
+      if (s.originHint) acts.push({ cls:"act-go", ic:"🧭", label:"איך מגיעים", href: directionsUrl(s.originHint, d, s.transportType) });
+      if (s.showUber || ["driving","taxi"].includes(s.transportType))
+        acts.push({ cls:"act-uber", ic:"🚕", label:"Uber", href: uberUrl(dCity) });
+      if (s.bookingUrl) acts.push({ cls:"act-book", ic:"🍽️", label:"הזמנה", href: s.bookingUrl });
+      else if (s.bookingRequired) acts.push({ cls:"act-book", ic:"🍽️", label:"הזמנה", href: googleSearchUrl((s.bookingSearchQuery || s.placeName + " reservation")) });
+      if (s.ticketUrl) acts.push({ cls:"act-ticket", ic:"🎟️", label:"כרטיסים", href: s.ticketUrl });
+      else if (s.ticketRequired) acts.push({ cls:"act-ticket", ic:"🎟️", label:"כרטיסים", href: googleSearchUrl((s.ticketSearchQuery || s.placeName + " tickets")) });
+      acts.push({ cls:"act-google", ic:"🔎", label:"גוגל", href: googleSearchUrl(s.searchQuery || (s.placeName + " " + (s.city||""))) });
+      return acts.map(a =>
+        `<a class="act ${a.cls}" href="${esc(a.href)}" target="_blank" rel="noopener"><span class="act-ic">${esc(a.ic)}</span> ${esc(a.label)}</a>`
+      ).join("");
+    }
+
+    // פס הגעה לשלב: מרחק + זמן + ניווט + Uber, מוטמע בראש הכרטיסייה
+    function legStripHtml(stop, prev) {
+      const originText = prev ? dest(prev) : stop.originHint;
+      if (!originText) return "";
+      const mode = stop.transportType || "transit";
+      let info = stop.legOverride
+        ? { distanceText: stop.legOverride.distanceText, durationText: stop.legOverride.durationText,
+            icon: stop.legOverride.icon, label: stop.legOverride.label }
+        : null;
+      if (!info) {
+        const oc = prev ? prev.coords : resolveCoords(stop.originHint);
+        const est = estimateLeg(oc, stop.coords, mode);
+        const m = MODES[mode] || MODES.transit;
+        info = est ? { ...est, icon: m.icon, label: m.label }
+                   : { distanceText: "", durationText: m.label, icon: m.icon, label: m.label };
+      }
+      const d = dest(stop), dCity = destWithCity(stop);
+      const showUber = stop.showUber || ["driving","taxi"].includes(mode);
+      const bits = [info.durationText, info.distanceText].filter(Boolean).join(' <span class="stop-leg-sep">·</span> ');
+      return `
+      <div class="stop-leg">
+        <span class="stop-leg-info">
+          <span class="stop-leg-ic">${esc(info.icon)}</span>
+          <span class="stop-leg-text">${bits || esc(info.label)}</span>
+        </span>
+        <span class="stop-leg-acts">
+          <a class="stop-leg-act" data-leg-act href="${esc(directionsUrl(originText, d, mode))}" target="_blank" rel="noopener" title="איך מגיעים">🧭</a>
+          ${showUber ? `<a class="stop-leg-act uber" data-leg-act href="${esc(uberUrl(dCity))}" target="_blank" rel="noopener" title="הזמנת Uber">🚕</a>` : ""}
+        </span>
+      </div>`;
+    }
+
+    /* ===================== אינטראקציות ===================== */
+    function bindEvents() {
+      document.querySelectorAll("[data-done]").forEach(b => b.addEventListener("click", e => {
+        e.preventDefault(); e.stopPropagation(); toggleDone(b.dataset.done);
+      }));
+      document.querySelectorAll("[data-leg-act]").forEach(a => a.addEventListener("click", e => e.stopPropagation()));
+      document.querySelectorAll(".stop").forEach(st => {
+        st.addEventListener("toggle", () => { if (st.open) loadMaps(st); });
+        if (st.open) loadMaps(st);
+      });
+      document.querySelectorAll("[data-helper]").forEach(chip => chip.addEventListener("click", () => {
+        const [dayId, name] = chip.dataset.helper.split(":");
+        toggleHelper(dayId, name, chip);
+      }));
+      document.querySelectorAll(".day").forEach(d => d.addEventListener("toggle", updateDayDimming));
+      updateDayDimming();
+    }
+    function updateDayDimming() {
+      const days = document.getElementById("days");
+      if (days) days.classList.toggle("has-open", !!document.querySelector(".day[open]"));
+    }
+    function loadMaps(scope) {
+      scope.querySelectorAll("iframe[data-src]").forEach(f => { if (!f.src) f.src = f.dataset.src; });
+    }
+    function toggleHelper(dayId, name, chip) {
+      const wasOn = chip.classList.contains("is-on");
+      document.querySelectorAll(`[data-helper^="${dayId}:"]`).forEach(c => c.classList.remove("is-on"));
+      document.querySelectorAll(`[data-panel^="${dayId}:"]`).forEach(p => p.hidden = true);
+      if (!wasOn) {
+        chip.classList.add("is-on");
+        const panel = document.querySelector(`[data-panel="${dayId}:${name}"]`);
+        if (panel) panel.hidden = false;
+      }
+    }
+    function toggleDone(id) {
+      doneStops.has(id) ? doneStops.delete(id) : doneStops.add(id);
+      saveDone();
+      const stop = document.querySelector(`[data-stop="${CSS.escape(id)}"]`);
+      const btn = document.querySelector(`[data-done="${CSS.escape(id)}"]`);
+      stop?.classList.toggle("is-done", doneStops.has(id));
+      btn?.classList.toggle("is-done", doneStops.has(id));
+      btn?.setAttribute("aria-pressed", String(doneStops.has(id)));
+      updateProgress();
+    }
+    function updateProgress() {
+      let total = 0, done = 0;
+      tripDays.forEach(day => {
+        const dd = day.stops.filter(s => doneStops.has(s.id)).length;
+        total += day.stops.length; done += dd;
+        const el = document.getElementById("count-" + day.id);
+        if (el) el.textContent = `${dd}/${day.stops.length}`;
+      });
+      document.getElementById("progressLine").textContent = `סומנו ${done} מתוך ${total} תחנות.`;
+    }
+
+    function applyTodayFilter() {
+      const info = activeDayInfo();
+      document.querySelectorAll(".day").forEach(sec => {
+        const hide = onlyToday && info.day && sec.dataset.day !== info.day.id;
+        sec.hidden = hide;
+        if (onlyToday && info.day && sec.dataset.day === info.day.id) sec.open = true;
+      });
+      document.getElementById("btnToday").classList.toggle("is-on", onlyToday);
+      document.getElementById("btnAll").classList.toggle("is-on", !onlyToday);
+    }
+
+    function updateHeader() {
+      const now = barcelonaNow();
+      document.getElementById("nowTime").textContent = "⏱️ " + now.text;
+      const info = activeDayInfo();
+      const nav = document.getElementById("nowNav");
+      const nextEl = document.getElementById("nowNext");
+      if (!info.day) { nextEl.innerHTML = "היום לא במסלול — אפשר לבחור יום ידנית"; nav.classList.add("is-off"); nav.href="#"; return; }
+      const sorted = [...info.day.stops].sort((a,b)=>stopMinutes(a)-stopMinutes(b));
+      const next = sorted.find(s => stopMinutes(s) >= info.minutes);
+      if (!next) { nextEl.innerHTML = `<b>${esc(info.day.label)}</b> · סיימתם את היום ✨`; nav.classList.add("is-off"); nav.href="#"; return; }
+      nextEl.innerHTML = `הבא: <b>${esc(next.time)}</b> ${esc(next.title)} ${esc(next.emoji)}`;
+      nav.classList.remove("is-off");
+      nav.href = next.originHint ? directionsUrl(next.originHint, dest(next), next.transportType) : mapSearchUrl(dest(next), next.city);
+    }
+
+    /* ===================== תמונות (ויקיפדיה, ללא מפתח) ===================== */
+    async function fetchWikiImage(title) {
+      const url = "https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1"
+        + "&prop=pageimages&piprop=thumbnail&pithumbsize=640&titles=" + encodeURIComponent(title);
+      const r = await fetch(url);
+      if (!r.ok) throw new Error("wiki " + r.status);
+      const pages = (await r.json())?.query?.pages || {};
+      for (const k in pages) { const t = pages[k]?.thumbnail?.source; if (t) return t; }
+      return null;
+    }
+
+    function applyImage(id, url) {
+      if (!url) return;
+      document.querySelectorAll(`[data-thumb="${CSS.escape(id)}"]`).forEach(el => {
+        el.classList.remove("is-emoji");
+        el.textContent = "";
+        el.style.backgroundImage = `url("${url}")`;
+      });
+      document.querySelectorAll(`[data-photo="${CSS.escape(id)}"]`).forEach(tile => {
+        if (tile.querySelector("img")) return;
+        tile.classList.add("has-img");
+        tile.querySelector(".photo-emoji")?.remove();
+        tile.querySelector(".photo-name")?.remove();
+        const img = document.createElement("img");
+        img.src = url; img.alt = ""; img.loading = "lazy";
+        tile.insertBefore(img, tile.firstChild);
+      });
+    }
+
+    async function loadImages() {
+      const tasks = [];
+      tripDays.forEach(day => day.stops.forEach(s => {
+        if (s.image) { applyImage(s.id, s.image); return; }     // תמונה ידנית גוברת
+        if (!s.wiki) return;                                    // אין מקור אוטומטי
+        if (s.id in imageCache) { applyImage(s.id, imageCache[s.id]); return; } // מהמטמון
+        tasks.push(
+          fetchWikiImage(s.wiki)
+            .then(u => { imageCache[s.id] = u || ""; if (u) applyImage(s.id, u); })
+            .catch(() => {})
+        );
+      }));
+      if (tasks.length) { await Promise.all(tasks); saveImageCache(); }
+    }
+
+    /* ===================== מזג אוויר (Open-Meteo, ללא מפתח) ===================== */
+    const WEATHER_EMOJI = code => {
+      if (code===0) return "☀️"; if ([1,2].includes(code)) return "🌤️"; if (code===3) return "☁️";
+      if ([45,48].includes(code)) return "🌫️"; if (code>=51&&code<=67) return "🌧️";
+      if (code>=71&&code<=77) return "🌨️"; if (code>=80&&code<=82) return "🌦️";
+      if (code>=95) return "⛈️"; return "🌡️";
+    };
+    async function fetchWeather(city) {
+      const c = WEATHER_CITIES[city]; if (!c) return { city, error:true };
+      const params = new URLSearchParams({ latitude:c.latitude, longitude:c.longitude,
+        current:"temperature_2m,apparent_temperature,weather_code,wind_speed_10m", timezone:c.timezone });
+      try {
+        const r = await fetch("https://api.open-meteo.com/v1/forecast?"+params, { cache:"no-store" });
+        if (!r.ok) throw 0;
+        const cur = (await r.json()).current || {};
+        return { city, label:c.label, emoji:WEATHER_EMOJI(+cur.weather_code),
+          temp:Math.round(cur.temperature_2m), feels:Math.round(cur.apparent_temperature),
+          wind:Math.round(cur.wind_speed_10m) };
+      } catch { return { city, label:c.label, error:true }; }
+    }
+    async function loadWeather() {
+      const cities = [...new Set(tripDays.flatMap(d => d.weatherCities))];
+      const arr = await Promise.all(cities.map(c => fetchWeather(c)));
+      arr.forEach(w => weatherCache[w.city] = w);
+      const bcn = weatherCache.Barcelona;
+      if (bcn && !bcn.error) {
+        document.getElementById("nowWeather").textContent = `${bcn.emoji} ${bcn.temp}°`;
+        document.getElementById("nowWeatherChip").hidden = false;
+      }
+      renderWeatherPanels();
+    }
+    function renderWeatherPanels() {
+      tripDays.forEach(day => {
+        const t = document.getElementById("weather-" + day.id); if (!t) return;
+        const ws = day.weatherCities.map(c => weatherCache[c]).filter(Boolean);
+        if (!ws.length) { t.textContent = "טוען מזג אוויר…"; return; }
+        const rows = ws.map(w => w.error
+          ? `<div class="weather-row"><strong>${esc(w.label)} 🌦️</strong><small>לא זמין כרגע</small></div>`
+          : `<div class="weather-row"><strong>${esc(w.label)} ${w.emoji} ${w.temp}°</strong><small>מרגיש ${w.feels}° · רוח ${w.wind} קמ״ש</small></div>`
+        ).join("");
+        const advice = buildAdvice(ws);
+        t.innerHTML = rows + (advice ? `<p class="advice">${esc(advice)}</p>` : "");
+      });
+    }
+    function buildAdvice(ws) {
+      const a = [];
+      ws.forEach(w => { if (w.error) return;
+        if (w.feels >= 30) a.push("חם מאוד — מים, כובע וקרם הגנה.");
+        if (w.feels <= 16) a.push("קריר — שכבה קלה לערב.");
+        if (w.wind >= 30) a.push("רוח חזקה — בחופים ובתצפיות כדאי להיות גמישים.");
+      });
+      return [...new Set(a)].join(" ");
+    }
+
+    /* ===================== Controls ===================== */
+    document.getElementById("btnToday").addEventListener("click", () => {
+      onlyToday = true; applyTodayFilter();
+      const info = activeDayInfo();
+      if (info.day) document.querySelector(`[data-day="${CSS.escape(info.day.id)}"]`)?.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+    document.getElementById("btnAll").addEventListener("click", () => { onlyToday = false; applyTodayFilter(); });
+    document.getElementById("btnOpen").addEventListener("click", () => {
+      document.querySelectorAll(".day, .stop").forEach(d => d.open = true);
+      document.querySelectorAll(".stop").forEach(loadMaps);
+    });
+    document.getElementById("btnClose").addEventListener("click", () => {
+      document.querySelectorAll(".stop, .day").forEach(d => d.open = false);
+    });
+
+    /* ===================== Boot ===================== */
+    render();
+    updateHeader();
+    loadImages();
+    loadWeather();
+    setInterval(updateHeader, 30000);
+  </script>
+</body>
+</html>
