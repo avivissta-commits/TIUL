@@ -288,6 +288,12 @@
       max-width: 88%; line-height: 1.25; }
     .tile-photo.has-img { background: #0e1a1f; }
     .tile-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-credit {
+      position: absolute; bottom: 7px; inset-inline-end: 7px; z-index: 3;
+      max-width: 48%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-size: 0.62rem; font-weight: 600; color: #25363d;
+      background: rgba(255,255,255,.94); border-radius: 7px; padding: 3px 7px;
+    }
     .tile-map .map-loader { position: absolute; inset: 0; display: grid; place-items: center;
       color: var(--muted); font-size: 0.74rem; z-index: 1; }
 
@@ -365,6 +371,7 @@
       <div class="controls">
         <button class="ctrl" id="btnToday" type="button">📍 רק היום</button>
         <button class="ctrl" id="btnAll" type="button">🗂️ כל הימים</button>
+        <button class="ctrl" id="btnGooglePhotos" type="button">🖼️ תמונות Google</button>
         <button class="ctrl" id="btnOpen" type="button">⬇️ פתח הכל</button>
         <button class="ctrl" id="btnClose" type="button">⬆️ סגור הכל</button>
       </div>
@@ -375,7 +382,7 @@
   <main class="wrap">
     <div id="days"></div>
     <footer class="note">
-      תמונות נמשכות מ-Wikipedia/Wikimedia לפי שם המקום (חינם, בלי מפתח); היכן שאין תמונה חופשית מוצג אריח אימוג׳י לפי סוג המקום.<br>
+      תמונות נמשכות מ-Google Places כשמוגדר מפתח, או מ-Wikipedia/Wikimedia בלי מפתח; היכן שאין תמונה מוצג אריח אימוג׳י לפי סוג המקום.<br>
       קישורי מפות, ניווט ו־Uber נוצרים אוטומטית. מרחקים וזמנים הם הערכה (≈).
     </footer>
   </main>
@@ -390,6 +397,8 @@
        • wiki:"כותרת ויקיפדיה" → התמונה תימשך אוטומטית מויקיפדיה.
        • image:"https://..."   → תמונה משלך (גוברת על wiki). הדבק כל קישור תמונה.
          דוגמה: image: "https://example.com/photo.jpg"
+       • כפתור "תמונות Google" → מדביקים Google Maps API key פעם אחת, והדף מושך
+         תמונות אמיתיות מ-Google Places לכל תחנה שיש לה תוצאה מתאימה.
        התמונה מופיעה גם ממוזערת בכרטיסייה הסגורה וגם בגדול כשפותחים.
        ========================================================= */
     const HOTEL = "Mosaic by Ona Barcelona";
@@ -433,6 +442,26 @@
       [HOTEL.toLowerCase()]: HOTEL_COORDS
     };
 
+    const PLACE_IMAGES = {
+      bloome: "place-images/codex-clipboard-0a772a06-75bc-4903-a010-6733806c2525.png",
+      churros: "place-images/codex-clipboard-3c434534-d871-40f0-af26-24f76d6a7c09.png",
+      marBella: "place-images/codex-clipboard-89155e7b-dd67-4b26-8e23-cfadb4bb5694.png",
+      hotel: "place-images/codex-clipboard-b5fb8419-1bc9-4098-aaa6-dbf1162e4c52.png",
+      editionRooftop: "place-images/codex-clipboard-41cc880d-dca3-4156-9be0-d17f9f570eef.png",
+      robata: "place-images/codex-clipboard-7246f228-8dd6-43aa-9ce2-68923b4211ed.png",
+      passeigStation: "place-images/codex-clipboard-72f066b7-3181-4a14-9974-77bf2d5ca5f4.png",
+      parrots: "place-images/codex-clipboard-b9d8c9dd-cbf7-4f6a-be4e-577687a91a26.png",
+      pecat: "place-images/codex-clipboard-a3bf8e74-3071-4830-a697-5817c53424d2.png",
+      elCable: "place-images/codex-clipboard-edbc1d76-2bdd-4865-bdb6-7434a8a7089a.png",
+      nem: "place-images/codex-clipboard-88becb2a-aaa8-4bda-85b3-fadbd71669df.png",
+      gala: "place-images/codex-clipboard-d304fce0-504f-4ad5-a37c-8aeb4b557bc3.png",
+      saunaCondal: "place-images/codex-clipboard-7bc7bbca-0594-429a-8a5b-58fbe0536422.png",
+      billyBrunch: "place-images/codex-clipboard-04c6ea41-0d1e-4660-8988-23cb0a424924.png",
+      saunaCasanova: "place-images/codex-clipboard-4a336c7e-3b0b-4e48-a2da-3594f58487bc.png",
+      boaBao: "place-images/codex-clipboard-ea62dfb5-e061-46cc-b027-81a269d7925f.png",
+      harrys: "place-images/codex-clipboard-627186c9-17ca-4e83-8449-e30607b35cdf.png"
+    };
+
     const tripDays = [
       {
         id: "wednesday", jsDay: 3, label: "יום רביעי", icon: "🛬",
@@ -444,6 +473,7 @@
         stops: [
           { id: "wed-hotel", time: "23:30", title: "הגעה והתארגנות במלון", emoji: "🏨", category: "rest",
             placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
+            image: PLACE_IMAGES.hotel,
             description: "הגעה ל־Mosaic by Ona, זריקת מזוודות והתאפסות קצרה לפני יציאה קלילה.",
             notes: ["להשאיר מטען וכרטיס אשראי נגישים.", "אם עייפים — אפשר ישר למיטה ולשמור אנרגיה לחמישי."],
             searchQuery: HOTEL, mapQuery: HOTEL, originHint: "Barcelona Airport",
@@ -468,6 +498,7 @@
         stops: [
           { id: "thu-brunch", time: "10:00", title: "בראנץ׳ בלב העיר העתיקה", emoji: "🥞", category: "food",
             placeName: "Bloome by Sasha", city: "Barcelona", coords: [41.3835, 2.1770],
+            image: PLACE_IMAGES.bloome,
             description: "פתיחה רגועה וטעימה בלב הרובע הגותי.",
             notes: ["מומלץ להזמין שולחן מראש.", "נקודת פתיחה טובה להליכה בעיר העתיקה."],
             searchQuery: "Bloome By Sasha Brunch Sin Gluten Gotico", mapQuery: "Bloome by Sasha Gothic Quarter Barcelona",
@@ -488,12 +519,14 @@
             priority: "must", ticketRequired: true, ticketUrl: "https://www.catedralbcn.org/" }, // ← אתר הקתדרלה (הכרטיס כבר נקנה)
           { id: "thu-churros", time: "13:30", title: "הצ׳ורוס הוויראלי", emoji: "🍩", category: "food",
             placeName: "Xurreria Manuel San Roman", city: "Barcelona", coords: [41.3826, 2.1745],
+            image: PLACE_IMAGES.churros,
             description: "עצירה מתוקה לצ׳ורוס המפורסם, בערך 5 דקות מהשוק.",
             notes: ["להגיע עם מקום קטן בבטן.", "יכול להיות תור — אבל זו עצירה קצרה."],
             searchQuery: "Xurreria Manuel San Roman Barcelona", mapQuery: "Xurreria Manuel San Roman Barcelona",
             originHint: "La Boqueria Barcelona", transportType: "walking" },
           { id: "thu-mar-bella", time: "14:00", title: "הים של הקהילה", emoji: "🏖️", category: "beach",
             placeName: "Platja de la Mar Bella", city: "Barcelona", coords: [41.3985, 2.2120],
+            image: PLACE_IMAGES.marBella,
             description: "חוף גאה ונודיסטים עם אווירה חופשית. יושבים ב־Chiringuito BeGay, מיטת שיזוף, קוקטייל וקפיצה למים.",
             alt: { label: "הבר על החול:", name: "Chiringuito BeGay", q: "Chiringuito BeGay Mar Bella Barcelona" },
             notes: ["הגעה במונית מהעיר העתיקה.", "בגד ים וכפכפים כבר מהבוקר.", "קרם הגנה ומשקפי שמש — חובה."],
@@ -501,18 +534,21 @@
             originHint: "Xurreria Manuel San Roman Barcelona", transportType: "driving", showUber: true },
           { id: "thu-siesta", time: "17:30-20:00", title: "סייסטה במלון", emoji: "🛌", category: "rest",
             placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
+            image: PLACE_IMAGES.hotel,
             description: "מקלחת טובה, מנוחה במזגן והתארגנות לערב.",
             notes: ["לייבש בגד ים ומגבת.", "לטעון טלפון לפני הרופטופ."],
             searchQuery: HOTEL, mapQuery: HOTEL, originHint: "Platja de la Mar Bella Barcelona",
             transportType: "driving", showUber: true },
           { id: "thu-rooftop", time: "20:00", title: "קוקטייל שקיעה על הרופטופ", emoji: "🍸", category: "sunset",
             placeName: "The Barcelona Edition Rooftop", city: "Barcelona", coords: [41.3866, 2.1735],
+            image: PLACE_IMAGES.editionRooftop,
             description: "רופטופ יוקרתי מול הנוף. כדאי להגיע קצת לפני השקיעה ולתפוס מקום יפה.",
             notes: ["לוק קליל לערב יעבוד כאן טוב.", "אם יש רוח — שכבה דקה תציל את הערב."],
             searchQuery: "The Barcelona Edition Rooftop", mapQuery: "The Barcelona Edition Rooftop Barcelona",
             originHint: HOTEL, transportType: "transit" },
           { id: "thu-robata", time: "22:00", title: "ארוחת ערב סושי ואסייתי", emoji: "🍣", category: "food",
             placeName: "Robata", city: "Barcelona", coords: [41.3905, 2.1600],
+            image: PLACE_IMAGES.robata,
             description: "באישמפלה, אווירה חשוכה ומודרנית, סושי/אסייתי לערב נעים.",
             notes: ["מומלץ להזמין שולחן מראש.", "מתאים אחרי רופטופ בלי להתרוצץ."],
             searchQuery: "Robata Barcelona", mapQuery: "Robata Barcelona",
@@ -548,11 +584,13 @@
             originHint: "LA PAPA Barcelona", transportType: "walking" },
           { id: "fri-rest", time: "13:30-15:30", title: "פריקת שקיות ומנוחה", emoji: "🛌", category: "rest",
             placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
+            image: PLACE_IMAGES.hotel,
             description: "זורקים שקיות במלון, נחים שעתיים ומתארגנים לרכבת ולחוף.",
             notes: ["לוודא שבגד ים וכפכפים בתיק.", "לטעון טלפון לפני הרכבת."],
             searchQuery: HOTEL, mapQuery: HOTEL, originHint: "Zara Placa Catalunya Barcelona", transportType: "walking" },
           { id: "fri-train", time: "15:30", title: "נסיעה לעיירת החוף סיטג׳ס", emoji: "🚆", category: "transport",
             placeName: "תחנת Passeig de Gràcia", city: "Barcelona", coords: [41.3917, 2.1648],
+            image: PLACE_IMAGES.passeigStation,
             description: "הליכה לתחנת Passeig de Gràcia ואז רכבת R2S לסיטג׳ס, כ־40 דקות.",
             notes: ["לבדוק רציף וזמנים באפליקציית מפות.", "מים לפני העלייה לרכבת."],
             searchQuery: "R2S Passeig de Gracia to Sitges train", mapQuery: "Passeig de Gracia Station Barcelona",
@@ -568,6 +606,7 @@
             legOverride: { icon: "🚆", label: "רכבת R2S לסיטג׳ס", durationText: "≈40 דק׳", distanceText: "≈38 ק״מ" } },
           { id: "fri-parrots", time: "18:30", title: "אפריטיבו ב-Parrots Pub", emoji: "🍹", category: "drink",
             placeName: "Parrots Pub", city: "Sitges", coords: [41.2353, 1.8083],
+            image: PLACE_IMAGES.parrots,
             description: "דרינק ראשון על הבר, אווירה של הקהילה.",
             notes: ["שעת אפריטיבו — הכי שווה לשבת בחוץ.", "הלב של סיטג׳ס, לראות ולהיראות."],
             searchQuery: "Parrots Pub Sitges", mapQuery: "Parrots Pub Sitges",
@@ -575,18 +614,21 @@
             legOverride: { icon: "🚶", label: "הליכה למרכז העיירה", durationText: "≈12 דק׳", distanceText: "≈0.8 ק״מ" } },
           { id: "fri-pecat", time: "19:15", title: "סיבוב בסמטאות (Carrer del Pecat)", emoji: "🛍️", category: "shopping",
             placeName: "Carrer del Pecat (רחוב החטא)", city: "Sitges", coords: [41.2356, 1.8086],
+            image: PLACE_IMAGES.pecat,
             description: "שוטטות קלה ברחוב החטא — חנויות בוטיק, מוזיקה ואנשים.",
             notes: ["סמוך מאוד ל-Parrots.", "אווירה תוססת לקראת הערב."],
             searchQuery: "Carrer Primer de Maig Sitges shops", mapQuery: "Carrer Primer de Maig Sitges",
             originHint: "Parrots Pub Sitges", transportType: "walking" },
           { id: "fri-el-cable", time: "19:45", title: "נשנוש קליל ב-El Cable", emoji: "🍤", category: "food",
             placeName: "El Cable", city: "Sitges", coords: [41.2370, 1.8055],
+            image: PLACE_IMAGES.elCable,
             description: "רק נשנוש — פינצ׳ו אחד או שניים ובירה קרה, כי שומרים מקום למנה העיקרית ב-NeM.",
             notes: ["לא להזמין יותר מדי כאן.", "מוסד מקומי של הקהילה בסיטג׳ס."],
             searchQuery: "El Cable Sitges tapas", mapQuery: "El Cable Sitges",
             originHint: "Carrer Primer de Maig Sitges", transportType: "walking" },
           { id: "fri-nem", time: "20:30", title: "ארוחת ערב ב-NeM Sitges", emoji: "🍽️", category: "food",
             placeName: "NeM Sitges", city: "Sitges", coords: [41.2369, 1.8064],
+            image: PLACE_IMAGES.nem,
             description: "מתיישבים לארוחת ערב מודרנית ומעוצבת — זו המנה העיקרית של הערב בסיטג׳ס.",
             notes: ["מומלץ להזמין שולחן מראש.", "זה הדינר האמיתי של הערב — להגיע עם תיאבון."],
             searchQuery: "NeM Sitges restaurant", mapQuery: "NeM Sitges",
@@ -594,6 +636,7 @@
             bookingSearchQuery: "NeM Sitges reservation" }, // ← אם יש לינק הזמנה אמיתי, החליפו ל-bookingUrl
           { id: "fri-back", time: "22:15", title: "יציאה לרכבת וחזרה לברצלונה", emoji: "🚆", category: "transport",
             placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
+            image: PLACE_IMAGES.hotel,
             description: "אחרי NeM — הליכה רגועה לתחנת סיטג׳ס, רכבת R2 חזרה לברצלונה, ואז מקלחת והתארגנות.",
             notes: ["הליכה לתחנת סיטג׳ס כ-10 דק׳.", "לבדוק זמני רכבת חזור.", "מקלחת בחדר משנה את כל הערב."],
             searchQuery: "Sitges to Mosaic by Ona Barcelona train", mapQuery: HOTEL,
@@ -602,6 +645,7 @@
           { id: "fri-gala", time: "22:30", title: "דרינקים והחוויה ב-Gala", emoji: "🎠", category: "drink",
             placeName: "Gala", city: "Barcelona", coords: [41.3880, 2.1660],
             optional: true,
+            image: PLACE_IMAGES.gala,
             description: "אופציונלי — אם נשאר כוח אחרי NeM: דרינקים והחוויה של הקרוסלה וחדר המראות (לא ארוחה, כבר אכלתם).",
             notes: ["אם רוצים לשבת — חובה להזמין מראש.", "אפשר גם לדלג ולשמור אנרגיה לסאונה."],
             searchQuery: "Gala Restaurante Barcelona", mapQuery: "Gala Restaurante Barcelona",
@@ -609,6 +653,7 @@
             bookingUrl: "http://www.galarestaurante.com/" }, // ← לינק הזמנה אמיתי
           { id: "fri-sauna", time: "00:30", sortMinutes: 1470, title: "סאונה של שישי בלילה", emoji: "🧖‍♂️", category: "sauna",
             placeName: "Sauna Casanova", city: "Barcelona", coords: [41.3855, 2.1615],
+            image: PLACE_IMAGES.saunaCasanova,
             description: "אופציה ללילה מאוחר. בחרו את הסאונה שמתאימה לכם מבין האפשרויות.",
             altsTitle: "אפשרויות לסאונה",
             alts: [
@@ -638,12 +683,14 @@
             priority: "must", ticketRequired: true, ticketUrl: "https://sagradafamilia.org/en/web/guest/sagrada-familia-ticket" }, // ← כרטיסים אמיתי
           { id: "sat-brunch", time: "12:00", title: "בראנץ׳ מושחת וצעיר", emoji: "🍳", category: "food",
             placeName: "Billy Brunch", city: "Barcelona", coords: [41.4050, 2.1760],
+            image: PLACE_IMAGES.billyBrunch,
             description: "בראנץ׳ בסניף ליד הסגרדה, מושלם אחרי הביקור.",
             notes: ["לא להכביד מדי אם רוצים לנוח טוב בצהריים."],
             searchQuery: "Billy Brunch Sagrada Familia Barcelona", mapQuery: "Billy Brunch Sagrada Familia Barcelona",
             originHint: "Sagrada Familia Barcelona", transportType: "walking" },
           { id: "sat-siesta", time: "14:00-18:30", title: "סייסטה ארוכה וזמן פנוי", emoji: "🛌", category: "rest",
             placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
+            image: PLACE_IMAGES.hotel,
             description: "לנוח בחדר, תנומה טובה ולהגיע חדים למוצ״ש.",
             notes: ["לטעון טלפון ומטען נייד.", "להכין שכבה קלה לבונקרים."],
             searchQuery: HOTEL, mapQuery: HOTEL, originHint: "Billy Brunch Barcelona", transportType: "transit" },
@@ -662,6 +709,7 @@
             originHint: "Bunkers del Carmel Barcelona", transportType: "driving", showUber: true },
           { id: "sat-sauna", time: "23:30", title: "ליל הסאונה המרכזי", emoji: "🧖‍♂️", category: "sauna",
             placeName: "Sauna Casanova", city: "Barcelona", coords: [41.3855, 2.1615],
+            image: PLACE_IMAGES.saunaCasanova,
             description: "מוצ״ש הוא הזמן המרכזי של המקום.",
             notes: ["כפכפים, מים ותיק קטן.", "לא כבדים מדי אחרי האוכל."],
             searchQuery: "Sauna Casanova Barcelona", mapQuery: "Sauna Casanova Barcelona",
@@ -686,6 +734,7 @@
             priority: "must", ticketRequired: true, ticketUrl: "https://parkguell.barcelona/en/buy-tickets" }, // ← כרטיסים אמיתי
           { id: "sun-boa-bao", time: "14:30", title: "צהריים אסייתי מוקפד", emoji: "🍛", category: "food",
             placeName: "Boa-Bao", city: "Barcelona", coords: [41.3880, 2.1650],
+            image: PLACE_IMAGES.boaBao,
             description: "אוכל אסייתי מוקפד, רטבים עמוקים וירקות קריספיים. אחרי פארק גואל.",
             notes: ["לא הזמנתם — נחליט במקום (אפשר גם בבר אם עמוס).", "כפתור הזמנה בכרטיס אם תרצו לסגור."],
             searchQuery: "Boa-Bao Barcelona reservation", mapQuery: "Boa-Bao Barcelona",
@@ -693,6 +742,7 @@
             bookingUrl: "http://www.boabao.es/" }, // ← לינק הזמנה אם תרצו
           { id: "sun-rest", time: "16:00-17:30", title: "מנוחת צהריים אחרונה", emoji: "🛌", category: "rest",
             placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
+            image: PLACE_IMAGES.hotel,
             description: "מנוחה קצרה (קוצרה כדי לפצות על פארק גואל המאוחר) לפני סיבוב ערב יפה.",
             notes: ["לטעון טלפון.", "להחליף ללוק נוח לערב."],
             searchQuery: HOTEL, mapQuery: HOTEL, originHint: "Boa-Bao Barcelona", transportType: "transit" },
@@ -716,6 +766,7 @@
             originHint: "Parc de la Ciutadella Barcelona", transportType: "transit" },
           { id: "sun-harrys", time: "22:30", title: "ארוחת סיום אלגנטית", emoji: "🥩", category: "food",
             placeName: "Restaurante Harry's", city: "Barcelona", coords: [41.3885, 2.1580],
+            image: PLACE_IMAGES.harrys,
             description: "ארוחת ערב קלאסית ושיקית עם קוקטיילים מעולים באישמפלה.",
             notes: ["לא הזמנתם — נחליט במקום.", "כפתור הזמנה בכרטיס אם תרצו לסגור."],
             searchQuery: "Restaurante Harry's Barcelona", mapQuery: "Restaurante Harry's Barcelona",
@@ -755,8 +806,13 @@
     };
     const DONE_KEY = "bcn-trip-done-v2";
     const IMG_KEY = "bcn-trip-img-v1";
+    const GOOGLE_PLACES_KEY = "bcn-trip-google-places-key-v1";
+    const GOOGLE_IMG_KEY = "bcn-trip-google-img-v1";
     let doneStops = loadDone();
     let imageCache = loadImageCache();
+    let googlePlacesApiKey = loadGooglePlacesKey();
+    let googleImageCache = loadGoogleImageCache();
+    let googlePlacesLoader = null;
     let weatherCache = {};
     let onlyToday = false;
 
@@ -787,7 +843,24 @@
     function saveDone() { try { localStorage.setItem(DONE_KEY, JSON.stringify([...doneStops])); } catch {} }
     function loadImageCache() { try { return JSON.parse(localStorage.getItem(IMG_KEY) || "{}"); } catch { return {}; } }
     function saveImageCache() { try { localStorage.setItem(IMG_KEY, JSON.stringify(imageCache)); } catch {} }
-    function stopImage(s) { return s.image || imageCache[s.id] || null; }
+    function loadGooglePlacesKey() { try { return localStorage.getItem(GOOGLE_PLACES_KEY) || ""; } catch { return ""; } }
+    function saveGooglePlacesKey() {
+      try {
+        if (googlePlacesApiKey) localStorage.setItem(GOOGLE_PLACES_KEY, googlePlacesApiKey);
+        else localStorage.removeItem(GOOGLE_PLACES_KEY);
+      } catch {}
+    }
+    function loadGoogleImageCache() { try { return JSON.parse(localStorage.getItem(GOOGLE_IMG_KEY) || "{}"); } catch { return {}; } }
+    function saveGoogleImageCache() { try { localStorage.setItem(GOOGLE_IMG_KEY, JSON.stringify(googleImageCache)); } catch {} }
+    function stripHtml(v) { return String(v || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim(); }
+    function stopImageInfo(s) {
+      if (s.image) return { url: s.image, source: "manual" };
+      const googleImg = googleImageCache[s.id];
+      if (googleImg?.url) return googleImg;
+      if (imageCache[s.id]) return { url: imageCache[s.id], source: "wiki" };
+      return null;
+    }
+    function stopImage(s) { return stopImageInfo(s)?.url || null; }
 
     function haversineKm(a, b) {
       const R = 6371, toRad = x => x * Math.PI / 180;
@@ -933,7 +1006,9 @@
       const soft = cat.color + "1a";
       const isDone = doneStops.has(s.id);
       const d = dest(s), city = s.city;
-      const img = stopImage(s);
+      const imageInfo = stopImageInfo(s);
+      const img = imageInfo?.url || null;
+      const photoCreditText = imageInfo?.source === "google" ? (stripHtml(imageInfo.attr) || "Google Places") : "";
       const fbEmoji = CATEGORY_EMOJI[s.category] || s.emoji || "📍";
       const thumb = img
         ? `<span class="stop-thumb" data-thumb="${esc(s.id)}" style="background-image:url('${esc(img)}')"></span>`
@@ -1017,6 +1092,7 @@
             <a class="tile tile-photo tile-link ${img?"has-img":""}" data-photo="${esc(s.id)}" href="${esc(imageSearchUrl(s.placeName || d, city))}" target="_blank" rel="noopener" aria-label="תמונות של ${esc(s.placeName)}">
               <span class="tile-label">📷 תמונות</span>
               ${photoInner}
+              ${photoCreditText ? `<span class="photo-credit">${esc(photoCreditText)}</span>` : ""}
               <span class="tile-cta">עוד תמונות ↗</span>
             </a>
           </div>
@@ -1164,7 +1240,91 @@
       nav.href = next.originHint ? directionsUrl(next.originHint, dest(next), next.transportType) : mapSearchUrl(dest(next), next.city);
     }
 
-    /* ===================== תמונות (Wikipedia/Wikimedia בלבד — חינם, בלי מפתח) ===================== */
+    /* ===================== תמונות (Google Places עם מפתח + Wikimedia כגיבוי) ===================== */
+    function updateGooglePhotoButton(label) {
+      const btn = document.getElementById("btnGooglePhotos");
+      if (!btn) return;
+      btn.classList.toggle("is-on", !!googlePlacesApiKey);
+      btn.textContent = label || (googlePlacesApiKey ? "🖼️ Google פעיל" : "🖼️ תמונות Google");
+    }
+
+    function googlePhotoQuery(s) {
+      return s.googlePhotoQuery || s.mapQuery || s.searchQuery || destWithCity(s);
+    }
+
+    function ensureGooglePlacesService() {
+      if (!googlePlacesApiKey) return Promise.reject(new Error("Missing Google Places key"));
+      if (window.google?.maps?.places) {
+        return Promise.resolve(new google.maps.places.PlacesService(document.createElement("div")));
+      }
+      if (googlePlacesLoader) return googlePlacesLoader;
+      googlePlacesLoader = new Promise((resolve, reject) => {
+        const callbackName = "__bcnGooglePlacesReady";
+        const timer = setTimeout(() => {
+          googlePlacesLoader = null;
+          reject(new Error("Google Places timed out"));
+        }, 12000);
+        window[callbackName] = () => {
+          try {
+            clearTimeout(timer);
+            resolve(new google.maps.places.PlacesService(document.createElement("div")));
+          } catch (err) {
+            reject(err);
+          }
+        };
+        window.gm_authFailure = () => {
+          clearTimeout(timer);
+          googlePlacesLoader = null;
+          reject(new Error("Google Places auth failed"));
+        };
+        const script = document.createElement("script");
+        script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(googlePlacesApiKey)
+          + "&libraries=places&callback=" + callbackName + "&loading=async";
+        script.async = true;
+        script.defer = true;
+        script.onerror = () => {
+          clearTimeout(timer);
+          googlePlacesLoader = null;
+          reject(new Error("Google Places failed to load"));
+        };
+        document.head.appendChild(script);
+      });
+      return googlePlacesLoader;
+    }
+
+    function photoInfoFromPlace(place) {
+      const photo = place?.photos?.[0];
+      if (!photo) return null;
+      return {
+        url: photo.getUrl({ maxWidth: 960, maxHeight: 720 }),
+        source: "google",
+        attr: (photo.html_attributions || []).join(" ")
+      };
+    }
+
+    function findGooglePlacePhoto(service, s) {
+      const query = googlePhotoQuery(s);
+      return new Promise(resolve => {
+        let settled = false;
+        const finish = value => { if (!settled) { settled = true; clearTimeout(timer); resolve(value); } };
+        const timer = setTimeout(() => finish(null), 9000);
+        service.findPlaceFromQuery({ query, fields: ["name", "place_id", "photos"] }, (results, status) => {
+          const first = results?.[0];
+          const info = status === google.maps.places.PlacesServiceStatus.OK ? photoInfoFromPlace(first) : null;
+          if (info) { finish(info); return; }
+          service.textSearch({ query }, (textResults, textStatus) => {
+            const textInfo = textStatus === google.maps.places.PlacesServiceStatus.OK ? photoInfoFromPlace(textResults?.[0]) : null;
+            finish(textInfo);
+          });
+        });
+      });
+    }
+
+    async function fetchGooglePlacePhoto(s) {
+      const service = await ensureGooglePlacesService();
+      return findGooglePlacePhoto(service, s);
+    }
+
     // לפי כותרת מדויקת (תחנות עם שדה wiki)
     async function fetchWikiImage(title) {
       const url = "https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1"
@@ -1194,7 +1354,7 @@
     }
     function resolveStopImage(s) { return s.wiki ? fetchWikiImage(s.wiki) : fetchWikiByName(s); }
 
-    function applyImage(id, url) {
+    function applyImage(id, url, meta = {}) {
       if (!url) return;
       document.querySelectorAll(`[data-thumb="${CSS.escape(id)}"]`).forEach(el => {
         const probe = new Image();
@@ -1202,9 +1362,12 @@
         probe.src = url;
       });
       document.querySelectorAll(`[data-photo="${CSS.escape(id)}"]`).forEach(tile => {
-        if (tile.querySelector("img")) return;
-        const img = document.createElement("img");
-        img.alt = ""; img.loading = "lazy";
+        let img = tile.querySelector("img");
+        if (!img) {
+          img = document.createElement("img");
+          img.alt = ""; img.loading = "lazy";
+          tile.insertBefore(img, tile.firstChild);
+        }
         img.onload = () => {
           tile.classList.add("has-img");
           tile.querySelector(".photo-emoji")?.remove();
@@ -1212,22 +1375,97 @@
         };
         img.onerror = () => img.remove(); // אם התמונה נשברה — נשאר אריח האימוג׳י
         img.src = url;
-        tile.insertBefore(img, tile.firstChild);
+        const credit = meta.source === "google" ? (stripHtml(meta.attr) || "Google Places") : "";
+        let creditEl = tile.querySelector(".photo-credit");
+        if (credit) {
+          if (!creditEl) {
+            creditEl = document.createElement("span");
+            creditEl.className = "photo-credit";
+            tile.appendChild(creditEl);
+          }
+          creditEl.textContent = credit;
+        } else {
+          creditEl?.remove();
+        }
       });
     }
 
+    async function loadWikiImageForStop(s) {
+      if (s.id in imageCache) {
+        if (imageCache[s.id]) applyImage(s.id, imageCache[s.id], { source: "wiki" });
+        return;
+      }
+      try {
+        const u = await resolveStopImage(s);
+        imageCache[s.id] = u || "";
+        if (u) applyImage(s.id, u, { source: "wiki" });
+      } catch {
+        imageCache[s.id] = "";
+      }
+    }
+
     async function loadImages() {
-      const tasks = [];
+      const wikiTasks = [];
+      const googleQueue = [];
       tripDays.forEach(day => day.stops.forEach(s => {
-        if (s.image) { applyImage(s.id, s.image); return; }       // תמונה ידנית גוברת
-        if (s.id in imageCache) { if (imageCache[s.id]) applyImage(s.id, imageCache[s.id]); return; } // הצלחה/כישלון שמורים
-        tasks.push(
-          resolveStopImage(s)
-            .then(u => { imageCache[s.id] = u || ""; if (u) applyImage(s.id, u); })
-            .catch(() => { imageCache[s.id] = ""; })
-        );
+        if (s.image) { applyImage(s.id, s.image, { source: "manual" }); return; } // תמונה ידנית גוברת
+        const googleImg = googleImageCache[s.id];
+        if (googleImg?.url) { applyImage(s.id, googleImg.url, googleImg); return; }
+        if (googlePlacesApiKey) { googleQueue.push(s); return; }
+        wikiTasks.push(loadWikiImageForStop(s));
       }));
-      if (tasks.length) { await Promise.all(tasks); saveImageCache(); }
+      if (wikiTasks.length) {
+        await Promise.all(wikiTasks);
+        saveImageCache();
+      }
+      if (googleQueue.length && googlePlacesApiKey) {
+        updateGooglePhotoButton("🖼️ טוען Google…");
+        for (const s of googleQueue) {
+          try {
+            const info = await fetchGooglePlacePhoto(s);
+            if (info?.url) {
+              googleImageCache[s.id] = info;
+              applyImage(s.id, info.url, info);
+              saveGoogleImageCache();
+              continue;
+            }
+          } catch {}
+          await loadWikiImageForStop(s);
+        }
+        saveImageCache();
+        saveGoogleImageCache();
+        updateGooglePhotoButton();
+      }
+    }
+
+    async function handleGooglePhotoKey() {
+      const raw = prompt(
+        "הדבק כאן Google Maps API key עם Places API פעיל. אפשר להשאיר ריק כדי למחוק את המפתח השמור.",
+        googlePlacesApiKey || ""
+      );
+      if (raw === null) return;
+      const next = raw.trim();
+      if (!next) {
+        googlePlacesApiKey = "";
+        googleImageCache = {};
+        googlePlacesLoader = null;
+        saveGooglePlacesKey();
+        saveGoogleImageCache();
+        render();
+        loadImages();
+        updateGooglePhotoButton();
+        return;
+      }
+      const changed = next !== googlePlacesApiKey;
+      googlePlacesApiKey = next;
+      saveGooglePlacesKey();
+      if (changed) {
+        googleImageCache = {};
+        googlePlacesLoader = null;
+        saveGoogleImageCache();
+      }
+      updateGooglePhotoButton("🖼️ טוען Google…");
+      await loadImages();
     }
 
     /* ===================== מזג אוויר (Open-Meteo, ללא מפתח) ===================== */
@@ -1291,6 +1529,7 @@
       if (info.day) document.querySelector(`[data-day="${CSS.escape(info.day.id)}"]`)?.scrollIntoView({behavior:"smooth", block:"start"});
     });
     document.getElementById("btnAll").addEventListener("click", () => { onlyToday = false; applyTodayFilter(); });
+    document.getElementById("btnGooglePhotos").addEventListener("click", handleGooglePhotoKey);
     document.getElementById("btnOpen").addEventListener("click", () => {
       document.querySelectorAll(".day, .stop").forEach(d => d.open = true);
       document.querySelectorAll(".stop").forEach(loadMaps);
@@ -1300,6 +1539,7 @@
     });
 
     /* ===================== Boot ===================== */
+    updateGooglePhotoButton();
     render();
     updateHeader();
     loadImages();
