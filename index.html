@@ -211,6 +211,49 @@
     .stop-info .info-place { font-weight: 600; color: #233238; }
     .stop-info .info-city { color: var(--muted); }
 
+    /* multi-point route inside a stop */
+    .route-points { border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+    .route-points-head {
+      display: flex; align-items: center; gap: 6px; padding: 8px 11px; font-size: 0.8rem; font-weight: 600;
+      color: #2c3f46; background: var(--cat-soft, #f1f5f6); border-bottom: 1px solid var(--line);
+    }
+    .route-list { margin: 0; padding: 6px; list-style: none; counter-reset: rp; display: grid; gap: 2px; }
+    .route-list li {
+      display: flex; align-items: center; gap: 9px; padding: 6px 6px 6px 5px; border-radius: 9px;
+    }
+    .route-list li + li { border-top: 1px dashed var(--line); }
+    .route-list li::before {
+      counter-increment: rp; content: counter(rp); flex: 0 0 auto;
+      width: 22px; height: 22px; border-radius: 999px; display: grid; place-items: center;
+      font-size: 0.72rem; font-weight: 700; color: #fff; background: var(--cat, var(--teal));
+    }
+    .rp-name { flex: 1 1 auto; min-width: 0; font-size: 0.85rem; color: #29393f; }
+    .rp-map {
+      flex: 0 0 auto; min-height: 30px; padding: 4px 10px; border-radius: 8px; border: 1px solid var(--line);
+      background: #fbfdfd; font-size: 0.76rem; font-weight: 600; color: #34484f;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    /* alternative / extra single spot (not a route) */
+    .stop-alt {
+      display: flex; align-items: center; gap: 9px; padding: 8px 11px;
+      border: 1px dashed var(--line); border-radius: var(--radius-sm); background: #fbfdfd; font-size: 0.83rem;
+    }
+    .stop-alt .alt-label { flex: 0 0 auto; color: var(--muted); font-weight: 600; }
+    .stop-alt .alt-name { flex: 1 1 auto; min-width: 0; font-weight: 600; color: #29393f;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* multiple options to choose from (not a route) */
+    .opt-list { margin: 0; padding: 6px; list-style: none; display: grid; gap: 2px; }
+    .opt-list li { display: flex; align-items: center; gap: 9px; padding: 8px 6px 8px 5px; }
+    .opt-list li + li { border-top: 1px dashed var(--line); }
+    .opt-list li::before {
+      content: ""; flex: 0 0 auto; width: 9px; height: 9px; border-radius: 999px;
+      background: var(--cat, var(--teal)); box-shadow: 0 0 0 3px var(--cat-soft, rgba(13,143,134,.12));
+    }
+    .opt-name { flex: 1 1 auto; min-width: 0; font-size: 0.85rem; font-weight: 600; color: #29393f;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .opt-name small { color: var(--muted); font-weight: 500; margin-inline-start: 4px; }
+
     /* media tiles side by side */
     .media { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .tile {
@@ -260,6 +303,7 @@
     .act:active { transform: scale(0.97); }
     .act .act-ic { font-size: 0.95rem; }
     .act.act-map { border-color: rgba(13,143,134,.4); }
+    .act.act-route { background: var(--teal); border-color: var(--teal); color: #fff; }
     .act.act-go { border-color: rgba(52,121,184,.45); }
     .act.act-uber { background: #15252b; border-color: #15252b; color: #fff; }
     .act.act-book { background: var(--teal); border-color: var(--teal); color: #fff; }
@@ -397,6 +441,7 @@
           { id: "wed-tapas", time: "00:00", sortMinutes: 1440, title: "קאווה וטאפאס ללילה הראשון", emoji: "🍷", category: "drink",
             placeName: "Cervecería Catalana", city: "Barcelona", coords: [41.3925, 2.1615],
             description: "משהו קליל, כמה פנצ׳וס על הבר, ונכנסים לאווירה של העיר.",
+            alt: { label: "אם עמוס, קרוב:", name: "Vinitus", q: "Vinitus Barcelona" },
             notes: ["המטבח פתוח עד 1:00.", "אין הזמנת מקום.", "אם עמוס — קרוב יש את Vinitus."],
             searchQuery: "Cerveceria Catalana Barcelona", mapQuery: "Cerveceria Catalana Barcelona",
             originHint: HOTEL, transportType: "walking" }
@@ -421,6 +466,11 @@
             placeName: "קתדרלת ברצלונה · קיר הנשיקה · לה בוקריה", city: "Barcelona", coords: [41.3839, 2.1762],
             wiki: "Barcelona Cathedral",
             description: "הליכה נינוחה בין הקתדרלה, קיר הנשיקה ושוק לה בוקריה עם נשנושי פירות וגבינות.",
+            points: [
+              { name: "קתדרלת ברצלונה", q: "Barcelona Cathedral", coords: [41.3839, 2.1762] },
+              { name: "קיר הנשיקה (El Petó)", q: "El mon neix en cada beso mural Barcelona", coords: [41.3838, 2.1787] },
+              { name: "שוק לה בוקריה", q: "La Boqueria Barcelona", coords: [41.3817, 2.1719] }
+            ],
             notes: ["לא להעמיס אוכל לפני הצ׳ורוס.", "לשמור על התיק באזורים עמוסים."],
             searchQuery: "Barcelona Cathedral Kiss Mural La Boqueria", mapQuery: "Barcelona Cathedral",
             originHint: "Bloome by Sasha Barcelona", transportType: "walking" },
@@ -433,6 +483,7 @@
           { id: "thu-mar-bella", time: "14:00", title: "הים של הקהילה", emoji: "🏖️", category: "beach",
             placeName: "Platja de la Mar Bella", city: "Barcelona", coords: [41.3985, 2.2120],
             description: "חוף גאה ונודיסטים עם אווירה חופשית. יושבים ב־Chiringuito BeGay, מיטת שיזוף, קוקטייל וקפיצה למים.",
+            alt: { label: "הבר על החול:", name: "Chiringuito BeGay", q: "Chiringuito BeGay Mar Bella Barcelona" },
             notes: ["הגעה במונית מהעיר העתיקה.", "בגד ים וכפכפים כבר מהבוקר.", "קרם הגנה ומשקפי שמש — חובה."],
             searchQuery: "Platja de la Mar Bella Chiringuito BeGay Barcelona", mapQuery: "Platja de la Mar Bella Barcelona",
             originHint: "Xurreria Manuel San Roman Barcelona", transportType: "driving", showUber: true },
@@ -475,6 +526,11 @@
             placeName: "Passeig de Gràcia", city: "Barcelona", coords: [41.3915, 2.1650],
             wiki: "Passeig de Gràcia",
             description: "הליכה על Passeig de Gràcia, Casa Milà ו־Casa Batlló מבחוץ, ואז זארה הענקית בכיכר קטלוניה.",
+            points: [
+              { name: "Casa Batlló", q: "Casa Batllo Barcelona", coords: [41.3917, 2.1649] },
+              { name: "Casa Milà (La Pedrera)", q: "Casa Mila Barcelona", coords: [41.3953, 2.1619] },
+              { name: "זארה · כיכר קטלוניה", q: "Zara Placa Catalunya Barcelona", coords: [41.3869, 2.1700] }
+            ],
             notes: ["לשמור קבלות.", "קניות יעילות — לא להיסחף לפני סיטג׳ס."],
             searchQuery: "Passeig de Gracia Casa Batllo Casa Mila Zara Placa Catalunya", mapQuery: "Passeig de Gracia Barcelona",
             originHint: "LA PAPA Barcelona", transportType: "walking" },
@@ -493,6 +549,7 @@
           { id: "fri-balmins", time: "16:30", title: "מפרץ הנודיסטים בסיטג׳ס", emoji: "🏖️", category: "beach",
             placeName: "Platja dels Balmins", city: "Sitges", coords: [41.2400, 1.8120],
             description: "מפרץ יפה, מים צלולים, חוף מעורב/נודיסטים. אופציה רגועה יותר: Bassa Rodona.",
+            alt: { label: "אלטרנטיבה רגועה:", name: "Bassa Rodona", q: "Bassa Rodona Sitges" },
             notes: ["להגיע עם מעט דברים.", "קרם הגנה, משקפי שמש ומגבת קטנה."],
             searchQuery: "Platja dels Balmins Sitges Bassa Rodona", mapQuery: "Platja dels Balmins Sitges",
             originHint: "Sitges Station", transportType: "train",
@@ -519,7 +576,12 @@
             bookingRequired: true, bookingUrl: "http://www.galarestaurante.com/" }, // ← לינק הזמנה אמיתי
           { id: "fri-sauna", time: "00:30", sortMinutes: 1470, title: "סאונה של שישי בלילה", emoji: "🧖‍♂️", category: "sauna",
             placeName: "Sauna Casanova", city: "Barcelona", coords: [41.3855, 2.1615],
-            description: "אופציה ללילה מאוחר, קרוב למלון באישמפלה.",
+            description: "אופציה ללילה מאוחר. בחרו את הסאונה שמתאימה לכם מבין האפשרויות.",
+            altsTitle: "אפשרויות לסאונה",
+            alts: [
+              { name: "Sauna Condal", q: "Sauna Condal Barcelona" },
+              { name: "Thermas Sauna", q: "Thermas Sauna Barcelona" }
+            ],
             notes: ["כפכפים, תיק קטן ובקבוק מים.", "אם לא חוזרים לחדר — להכין בגדים להחלפה מראש."],
             searchQuery: "Sauna Casanova Barcelona", mapQuery: "Sauna Casanova Barcelona",
             originHint: "Gala Restaurante Barcelona", transportType: "walking" }
@@ -605,6 +667,10 @@
             placeName: "Parc de la Ciutadella", city: "Barcelona", coords: [41.3911, 2.1806],
             wiki: "Parc de la Ciutadella",
             description: "שער הניצחון ואז Parc de la Ciutadella. בראשון מלא בצעירים, גיטרות וריקודים.",
+            points: [
+              { name: "שער הניצחון (Arc de Triomf)", q: "Arc de Triomf Barcelona", coords: [41.3910, 2.1806] },
+              { name: "Parc de la Ciutadella", q: "Parc de la Ciutadella Barcelona", coords: [41.3884, 2.1869] }
+            ],
             notes: ["מים ומשהו קטן לנשנש.", "להשאיר זמן מעבר למונז׳ואיק."],
             searchQuery: "Arc de Triomf Parc de la Ciutadella Barcelona", mapQuery: "Arc de Triomf Barcelona",
             originHint: HOTEL, transportType: "transit" },
@@ -727,6 +793,27 @@
       return "https://www.openstreetmap.org/export/embed.html?bbox=" + encodeURIComponent(bbox)
         + "&layer=mapnik&marker=" + lat + "," + lng;
     }
+    // הטמעה שממסגרת את כל נקודות המסלול (סיכה על הנקודה הראשונה)
+    function mapEmbedAll(points, city) {
+      const cs = points.map(p => p.coords).filter(Boolean);
+      if (cs.length < 2) return cs.length === 1 ? mapEmbedUrl(cs[0]) : "";
+      const lats = cs.map(c => c[0]), lngs = cs.map(c => c[1]);
+      const pad = 0.0025;
+      const bbox = [Math.min(...lngs)-pad, Math.min(...lats)-pad, Math.max(...lngs)+pad, Math.max(...lats)+pad].join(",");
+      return "https://www.openstreetmap.org/export/embed.html?bbox=" + encodeURIComponent(bbox)
+        + "&layer=mapnik&marker=" + cs[0][0] + "," + cs[0][1];
+    }
+    // מסלול הליכה ב־Google Maps שמחבר את כל הנקודות לפי הסדר (כל הפינים + ניווט)
+    function routeUrl(points, mode) {
+      const tm = mode === "walking" ? "walking" : ["transit","train","metro"].includes(mode) ? "transit" : "driving";
+      const tok = p => p.coords ? p.coords[0] + "," + p.coords[1] : (p.q || p.name);
+      const origin = tok(points[0]);
+      const destination = tok(points[points.length - 1]);
+      const mids = points.slice(1, -1).map(tok);
+      const wp = mids.length ? "&waypoints=" + encodeURIComponent(mids.join("|")) : "";
+      return "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(origin)
+        + "&destination=" + encodeURIComponent(destination) + wp + "&travelmode=" + tm;
+    }
     function directionsUrl(origin, dest, mode) {
       const tm = mode === "walking" ? "walking" : ["transit","train","metro"].includes(mode) ? "transit" : "driving";
       return "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(origin) +
@@ -820,6 +907,22 @@
       const photoInner = img
         ? `<img src="${esc(img)}" alt="${esc(s.placeName)}" loading="lazy">`
         : `<span class="photo-emoji">${esc(s.emoji)}</span><span class="photo-name">${esc(s.placeName)}</span>`;
+      const hasPoints = Array.isArray(s.points) && s.points.length > 1;
+      const mapEmbed = hasPoints ? mapEmbedAll(s.points, city) : mapEmbedUrl(s.coords);
+      const mapHref = hasPoints ? routeUrl(s.points, s.transportType) : mapSearchUrl(d, city);
+      const mapLabel = hasPoints ? "🧭 מסלול" : "🗺️ מפה";
+      const mapCta = hasPoints ? "פתח מסלול ↗" : "פתח במפות ↗";
+      const pointsBlock = hasPoints ? `
+          <div class="route-points">
+            <div class="route-points-head">🧭 מסלול בתוך התחנה · ${s.points.length} עצירות</div>
+            <ol class="route-list">
+              ${s.points.map(p => `
+                <li>
+                  <span class="rp-name">${esc(p.name)}</span>
+                  <a class="rp-map" href="${esc(mapSearchUrl(p.q || p.name, city))}" target="_blank" rel="noopener">📍 מפה</a>
+                </li>`).join("")}
+            </ol>
+          </div>` : "";
       return `
       <details class="stop ${isDone?"is-done":""}" data-stop="${esc(s.id)}"
         style="--cat:${cat.color};--cat-soft:${soft}">
@@ -848,12 +951,33 @@
             ${s.city ? `<span class="info-city">${esc(cityHe(s.city))}</span>` : ""}
           </div>
           <p class="stop-desc">${esc(s.description)}</p>
+          ${pointsBlock}
+          ${Array.isArray(s.alts) && s.alts.length ? (() => {
+            const opts = [{ name: s.placeName, q: s.mapQuery || s.placeName, note: "ליד המלון" }, ...s.alts];
+            return `
+          <div class="route-points">
+            <div class="route-points-head">${esc(s.emoji)} ${esc(s.altsTitle || "אפשרויות")} · בחירה</div>
+            <ul class="opt-list">
+              ${opts.map(o => `
+                <li>
+                  <span class="opt-name">${esc(o.name)}${o.note ? ` <small>(${esc(o.note)})</small>` : ""}</span>
+                  <a class="rp-map" href="${esc(mapSearchUrl(o.q || o.name, city))}" target="_blank" rel="noopener">📍 מפה</a>
+                </li>`).join("")}
+            </ul>
+          </div>`;
+          })() : ""}
+          ${s.alt ? `
+          <div class="stop-alt">
+            <span class="alt-label">${esc(s.alt.label)}</span>
+            <span class="alt-name">${esc(s.alt.name)}</span>
+            <a class="rp-map" href="${esc(mapSearchUrl(s.alt.q || s.alt.name, city))}" target="_blank" rel="noopener">📍 מפה</a>
+          </div>` : ""}
           <div class="media">
-            <a class="tile tile-map tile-link" href="${esc(mapSearchUrl(d, city))}" target="_blank" rel="noopener" aria-label="פתח מפה של ${esc(s.placeName)}">
-              <span class="tile-label">🗺️ מפה</span>
+            <a class="tile tile-map tile-link" href="${esc(mapHref)}" target="_blank" rel="noopener" aria-label="${esc(hasPoints ? "פתח מסלול של " + s.title : "פתח מפה של " + s.placeName)}">
+              <span class="tile-label">${mapLabel}</span>
               <span class="map-loader">המפה תיטען…</span>
-              <iframe data-src="${esc(mapEmbedUrl(s.coords))}" title="מפת ${esc(s.title)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-              <span class="tile-cta">פתח במפות ↗</span>
+              <iframe data-src="${esc(mapEmbed)}" title="מפת ${esc(s.title)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              <span class="tile-cta">${mapCta}</span>
             </a>
             <a class="tile tile-photo tile-link ${img?"has-img":""}" data-photo="${esc(s.id)}" href="${esc(imageSearchUrl(s.placeName || d, city))}" target="_blank" rel="noopener" aria-label="תמונות של ${esc(s.placeName)}">
               <span class="tile-label">📷 תמונות</span>
@@ -876,6 +1000,8 @@
 
     function actionsHtml(s) {
       const d = dest(s), dCity = destWithCity(s), acts = [];
+      const hasPoints = Array.isArray(s.points) && s.points.length > 1;
+      if (hasPoints) acts.push({ cls:"act-route", ic:"🧭", label:"מסלול", href: routeUrl(s.points, s.transportType) });
       acts.push({ cls:"act-map", ic:"📍", label:"מפה", href: mapSearchUrl(d, s.city) });
       if (s.originHint) acts.push({ cls:"act-go", ic:"🧭", label:"איך מגיעים", href: directionsUrl(s.originHint, d, s.transportType) });
       if (s.showUber || ["driving","taxi"].includes(s.transportType))
