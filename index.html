@@ -106,7 +106,7 @@
 
     /* ===== Day accordion ===== */
     .day {
-      margin-top: 12px; background: var(--surface);
+      margin-top: 14px; background: var(--surface);
       border: 1px solid var(--line); border-radius: var(--radius);
       box-shadow: var(--shadow); overflow: hidden;
       transition: opacity .22s ease, filter .22s ease, transform .22s ease;
@@ -134,10 +134,10 @@
     .day-chev { font-size: 1.1rem; color: var(--muted); transition: transform .2s ease; }
     .day[open] .day-chev { transform: rotate(180deg); }
 
-    .day-body { padding: 0 12px 12px; }
+    .day-body { padding: 2px 12px 14px; }
 
     /* Day helper chips */
-    .helper { display: flex; gap: 6px; margin-bottom: 11px; }
+    .helper { display: flex; gap: 7px; margin-bottom: 12px; }
     .helper-chip {
       flex: 1 1 0; min-height: 38px; border: 1px solid var(--line); background: #fbfdfd;
       border-radius: 10px; cursor: pointer; display: grid; place-items: center; gap: 0;
@@ -157,7 +157,7 @@
       background: #fff6e6; color: #6c4d12; border: 1px solid rgba(217,154,33,.25); font-size: 0.8rem; }
 
     /* ===== Stops timeline ===== */
-    .timeline { display: grid; }
+    .timeline { display: grid; gap: 12px; }
 
     .stop {
       background: var(--surface); border: 1px solid var(--line);
@@ -170,8 +170,8 @@
     }
     .stop > summary { list-style: none; cursor: pointer; padding: 0; }
     .stop > summary::-webkit-details-marker { display: none; }
-    .stop-row { display: grid; grid-template-columns: 28px auto 1fr auto 48px; align-items: center; gap: 8px;
-      padding: 10px 11px 10px 12px; }
+    .stop-row { display: grid; grid-template-columns: 28px auto 1fr auto 48px; align-items: center; gap: 9px;
+      padding: 13px 13px 13px 14px; }
     .stop-thumb {
       width: 48px; height: 48px; flex: 0 0 auto; border-radius: 11px; overflow: hidden;
       border: 1px solid var(--line); background-color: #eef4f5; background-size: cover; background-position: center;
@@ -190,7 +190,7 @@
     }
     .stop-main { min-width: 0; display: flex; align-items: center; gap: 7px; }
     .stop-emoji { font-size: 1.15rem; flex: 0 0 auto; }
-    .stop-title { min-width: 0; display: grid; gap: 3px; }
+    .stop-title { min-width: 0; display: grid; gap: 4px; }
     .stop-title strong { font-size: 0.94rem; font-weight: 600; line-height: 1.2;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .stop-sub { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
@@ -204,7 +204,7 @@
     .stop.is-done { opacity: .66; }
     .stop.is-done .stop-title strong { text-decoration: line-through; text-decoration-color: rgba(63,133,85,.6); }
 
-    .stop-detail { padding: 0 12px 12px; display: grid; gap: 11px; }
+    .stop-detail { padding: 2px 14px 14px; display: grid; gap: 13px; }
     .stop-desc { margin: 0; font-size: 0.88rem; color: #33454c; line-height: 1.45; }
     .stop-info { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 0.84rem;
       margin: -2px 0 0; }
@@ -245,12 +245,12 @@
       color: var(--muted); font-size: 0.74rem; z-index: 1; }
 
     /* notes */
-    .notes { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; }
-    .notes li { position: relative; padding-inline-start: 17px; font-size: 0.82rem; color: #3a4d54; line-height: 1.4; }
+    .notes { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+    .notes li { position: relative; padding-inline-start: 17px; font-size: 0.82rem; color: #3a4d54; line-height: 1.45; }
     .notes li::before { content: "•"; position: absolute; inset-inline-start: 3px; color: var(--gold); font-weight: 700; }
 
     /* uniform action buttons */
-    .actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 7px; }
+    .actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
     .act {
       min-height: 40px; border: 1px solid var(--line); background: #fbfdfd; color: #1f3138;
       border-radius: 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer;
@@ -268,7 +268,7 @@
     /* ===== Arrival strip inside each card (travel to reach this step) ===== */
     .stop-leg {
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      padding: 5px 12px 5px 10px; background: var(--cat-soft, #eef4f5);
+      padding: 8px 13px 8px 11px; background: var(--cat-soft, #eef4f5);
       border-bottom: 1px solid rgba(24, 39, 45, 0.06);
     }
     .stop-leg-info { display: inline-flex; align-items: center; gap: 7px; min-width: 0; }
