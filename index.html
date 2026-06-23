@@ -336,61 +336,6 @@
 
     footer.note { margin-top: 22px; text-align: center; color: var(--muted); font-size: 0.74rem; line-height: 1.6; }
 
-    /* ===== Tickets bar + modal ===== */
-    .tickets-bar {
-      width: 100%; min-height: 44px; cursor: pointer; border-radius: 12px;
-      border: 1px solid rgba(232,95,92,.45);
-      background: linear-gradient(135deg, rgba(232,95,92,.14), rgba(217,154,33,.14));
-      color: #8a2f2c; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      font-size: 0.9rem; font-weight: 700; transition: transform .12s ease;
-    }
-    .tickets-bar:active { transform: scale(0.99); }
-    .tickets-count {
-      flex: 0 0 auto; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px;
-      background: var(--coral); color: #fff; font-size: 0.78rem; font-weight: 700;
-      display: inline-flex; align-items: center; justify-content: center;
-    }
-
-    .modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; }
-    .modal[hidden] { display: none; }
-    .modal-backdrop { position: absolute; inset: 0; background: rgba(16,26,31,.55); backdrop-filter: blur(2px); }
-    .modal-card {
-      position: relative; z-index: 1; width: min(560px, 100%); max-height: 86vh; overflow: auto;
-      background: var(--surface); border-radius: 18px; box-shadow: 0 24px 60px rgba(0,0,0,.3);
-      padding: 14px 14px 16px;
-    }
-    .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .modal-head strong { font-size: 1.02rem; font-weight: 700; }
-    .modal-close {
-      width: 34px; height: 34px; flex: 0 0 auto; border-radius: 9px; border: 1px solid var(--line);
-      background: #fff; color: var(--muted); cursor: pointer; font-size: 0.95rem;
-    }
-    .modal-sub { margin: 6px 0 0; font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
-    .tk-list { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 9px; }
-    .tk-day-head { font-size: 0.74rem; font-weight: 700; color: var(--teal-dark);
-      margin: 6px 0 -2px; padding-inline-start: 2px; }
-    .tk-item { display: flex; align-items: center; gap: 11px; padding: 10px 11px;
-      border: 1px solid var(--line); border-radius: 12px; background: #fbfdfd; }
-    .tk-item.is-optional { border-style: dashed; border-color: rgba(217,154,33,.5); background: #fffdf8; }
-    .tk-when { flex: 0 0 auto; display: grid; gap: 1px; text-align: center; min-width: 46px; }
-    .tk-time { font-weight: 700; font-size: 0.92rem; direction: ltr; color: #233238; }
-    .tk-kind { font-size: 1.05rem; }
-    .tk-main { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
-    .tk-main strong { font-size: 0.9rem; font-weight: 600; line-height: 1.2; }
-    .tk-main small { font-size: 0.74rem; color: var(--muted); }
-    .tk-opt { color: var(--gold); font-weight: 700; }
-    .tk-tier { display: inline-block; font-size: 0.64rem; font-weight: 700; border-radius: 999px;
-      padding: 1px 7px; margin-inline-end: 4px; vertical-align: middle; }
-    .tier-must { background: var(--coral); color: #fff; }
-    .tier-recommended { background: rgba(217,154,33,.18); color: #8a5a12; border: 1px solid rgba(217,154,33,.5); }
-    .tk-cta {
-      flex: 0 0 auto; min-height: 38px; padding: 7px 12px; border-radius: 10px; white-space: nowrap;
-      font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;
-    }
-    .tk-cta.kind-ticket { background: var(--coral); border: 1px solid var(--coral); color: #fff; }
-    .tk-cta.kind-booking { background: var(--teal); border: 1px solid var(--teal); color: #fff; }
-    .tk-cta.is-search { background: #fff; color: #34484f; border-color: var(--line); }
-
     @media (max-width: 360px) {
       .stop-time { font-size: 0.8rem; }
       .actions { grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); }
@@ -423,10 +368,6 @@
         <button class="ctrl" id="btnOpen" type="button">⬇️ פתח הכל</button>
         <button class="ctrl" id="btnClose" type="button">⬆️ סגור הכל</button>
       </div>
-      <button class="tickets-bar" id="btnTickets" type="button">
-        <span class="tickets-bar-title">🎟️ כרטיסים והזמנות מראש</span>
-        <span class="tickets-count" id="ticketsCount"></span>
-      </button>
       <div class="progress-line" id="progressLine"></div>
     </div>
   </header>
@@ -434,26 +375,10 @@
   <main class="wrap">
     <div id="days"></div>
     <footer class="note">
-      תמונה אמיתית לכל מקום: הדביקו מפתח Google (GOOGLE_MAPS_KEY) בקוד. בלי מפתח — אתרים מפורסמים מקבלים תמונה מויקיפדיה, והשאר אימוג׳י.<br>
+      תמונות נמשכות מ-Wikipedia/Wikimedia לפי שם המקום (חינם, בלי מפתח); היכן שאין תמונה חופשית מוצג אריח אימוג׳י לפי סוג המקום.<br>
       קישורי מפות, ניווט ו־Uber נוצרים אוטומטית. מרחקים וזמנים הם הערכה (≈).
     </footer>
   </main>
-
-  <div class="modal" id="ticketsModal" hidden>
-    <div class="modal-backdrop" data-close-tickets></div>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-label="כרטיסים והזמנות מראש">
-      <div class="modal-head">
-        <strong>🎟️ כרטיסים והזמנות מראש</strong>
-        <button class="modal-close" type="button" data-close-tickets aria-label="סגור">✕</button>
-      </div>
-      <p class="modal-sub">
-        <span class="tk-tier tier-must">חובה</span> להזמין מראש — נוטה להיגמר.
-        <span class="tk-tier tier-recommended">מומלץ</span> כדאי להזמין, אפשר גם להסתכן.<br>
-        מה שלא ברשימה (טאפאס, ברים, סאונות) — אפשר פשוט להגיע, בלי הזמנה.
-      </p>
-      <ul class="tk-list" id="ticketsList"></ul>
-    </div>
-  </div>
 
   <script>
     /* =========================================================
@@ -470,12 +395,12 @@
     const HOTEL = "Mosaic by Ona Barcelona";
     const HOTEL_COORDS = [41.3955, 2.1585];
 
-    // ── תמונות אמיתיות לכל מקום (אופציונלי) ──────────────────────────────
-    // הדביקו כאן מפתח Google Maps עם "Maps JavaScript API" + "Places API (New)" מופעלים.
-    // ריק = בלי תמונות Google (אתרים מפורסמים עדיין יקבלו תמונה מויקיפדיה).
-    // איך משיגים: console.cloud.google.com → פרויקט חדש → Enable APIs → Maps JavaScript API + Places API (New) → Credentials → Create API key.
-    const GOOGLE_MAPS_KEY = "";
-    let gPhotoCache = {}; // תמונות מ-Google לפי id (זמני, לא נשמר — מתרענן כל פתיחה)
+    // אימוג׳י fallback לפי סוג מקום (כשאין תמונה חופשית)
+    const CATEGORY_EMOJI = {
+      food: "🍽️", drink: "🍸", beach: "🏖️", attraction: "🏛️", sauna: "🧖",
+      shopping: "🛍️", rest: "🏨", coffee: "☕", transport: "🚆", sunset: "🌇",
+      park: "🌳", arrival: "✈️", flight: "✈️"
+    };
 
     const CATEGORY = {
       arrival:   { label: "הגעה",    color: "#0d8f86" },
@@ -547,7 +472,7 @@
             notes: ["מומלץ להזמין שולחן מראש.", "נקודת פתיחה טובה להליכה בעיר העתיקה."],
             searchQuery: "Bloome By Sasha Brunch Sin Gluten Gotico", mapQuery: "Bloome by Sasha Gothic Quarter Barcelona",
             originHint: HOTEL, transportType: "transit",
-            priority: "recommended", bookingRequired: true, bookingUrl: "https://www.bloomebysasha.es/brunch-gotico" }, // ← לינק הזמנה אמיתי
+            bookingUrl: "https://www.bloomebysasha.es/brunch-gotico" }, // ← לינק הזמנה אמיתי
           { id: "thu-gothic", time: "11:30", title: "היסטוריה ונשנושי שוק", emoji: "⛪", category: "attraction",
             placeName: "קתדרלת ברצלונה · קיר הנשיקה · לה בוקריה", city: "Barcelona", coords: [41.3839, 2.1762],
             wiki: "Barcelona Cathedral",
@@ -557,9 +482,10 @@
               { name: "קיר הנשיקה (El Petó)", q: "El mon neix en cada beso mural Barcelona", coords: [41.3838, 2.1787] },
               { name: "שוק לה בוקריה", q: "La Boqueria Barcelona", coords: [41.3817, 2.1719] }
             ],
-            notes: ["לא להעמיס אוכל לפני הצ׳ורוס.", "לשמור על התיק באזורים עמוסים."],
+            notes: ["יש לכם כרטיס לקתדרלה — להגיע בזמן.", "לא להעמיס אוכל לפני הצ׳ורוס.", "לשמור על התיק באזורים עמוסים."],
             searchQuery: "Barcelona Cathedral Kiss Mural La Boqueria", mapQuery: "Barcelona Cathedral",
-            originHint: "Bloome by Sasha Barcelona", transportType: "walking" },
+            originHint: "Bloome by Sasha Barcelona", transportType: "walking",
+            priority: "must", ticketRequired: true, ticketUrl: "https://www.catedralbcn.org/" }, // ← אתר הקתדרלה (הכרטיס כבר נקנה)
           { id: "thu-churros", time: "13:30", title: "הצ׳ורוס הוויראלי", emoji: "🍩", category: "food",
             placeName: "Xurreria Manuel San Roman", city: "Barcelona", coords: [41.3826, 2.1745],
             description: "עצירה מתוקה לצ׳ורוס המפורסם, בערך 5 דקות מהשוק.",
@@ -591,7 +517,7 @@
             notes: ["מומלץ להזמין שולחן מראש.", "מתאים אחרי רופטופ בלי להתרוצץ."],
             searchQuery: "Robata Barcelona", mapQuery: "Robata Barcelona",
             originHint: "The Barcelona Edition Barcelona", transportType: "transit",
-            priority: "recommended", bookingRequired: true, bookingUrl: "https://robata.es/" } // ← לינק הזמנה אמיתי
+            bookingUrl: "https://robata.es/" } // ← לינק הזמנה אמיתי
         ]
       },
       {
@@ -665,7 +591,7 @@
             notes: ["מומלץ להזמין שולחן מראש.", "זה הדינר האמיתי של הערב — להגיע עם תיאבון."],
             searchQuery: "NeM Sitges restaurant", mapQuery: "NeM Sitges",
             originHint: "El Cable Sitges", transportType: "walking",
-            priority: "recommended", bookingRequired: true, bookingSearchQuery: "NeM Sitges reservation" }, // ← אם יש לינק הזמנה אמיתי, החליפו ל-bookingUrl
+            bookingSearchQuery: "NeM Sitges reservation" }, // ← אם יש לינק הזמנה אמיתי, החליפו ל-bookingUrl
           { id: "fri-back", time: "22:15", title: "יציאה לרכבת וחזרה לברצלונה", emoji: "🚆", category: "transport",
             placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
             description: "אחרי NeM — הליכה רגועה לתחנת סיטג׳ס, רכבת R2 חזרה לברצלונה, ואז מקלחת והתארגנות.",
@@ -680,7 +606,7 @@
             notes: ["אם רוצים לשבת — חובה להזמין מראש.", "אפשר גם לדלג ולשמור אנרגיה לסאונה."],
             searchQuery: "Gala Restaurante Barcelona", mapQuery: "Gala Restaurante Barcelona",
             originHint: HOTEL, transportType: "transit",
-            priority: "must", bookingRequired: true, bookingUrl: "http://www.galarestaurante.com/" }, // ← לינק הזמנה אמיתי
+            bookingUrl: "http://www.galarestaurante.com/" }, // ← לינק הזמנה אמיתי
           { id: "fri-sauna", time: "00:30", sortMinutes: 1470, title: "סאונה של שישי בלילה", emoji: "🧖‍♂️", category: "sauna",
             placeName: "Sauna Casanova", city: "Barcelona", coords: [41.3855, 2.1615],
             description: "אופציה ללילה מאוחר. בחרו את הסאונה שמתאימה לכם מבין האפשרויות.",
@@ -750,24 +676,24 @@
         packing: "נעליים נוחות, מים, כובע, משקפי שמש ושכבה קלה לערב. יום של פארקים — תיק נוח ולא כבד.",
         tip: "החנויות סגורות בראשון — יום מושלם לטבע, אוכל ואווירה בלי לחץ קניות.",
         stops: [
-          { id: "sun-guell", time: "10:00", title: "פארק גואל", emoji: "🦎", category: "park",
+          { id: "sun-guell", time: "12:30", title: "פארק גואל", emoji: "🦎", category: "park",
             placeName: "Park Güell", city: "Barcelona", coords: [41.4145, 2.1527],
             wiki: "Park Güell",
-            description: "ביקור בפארק גואל. חובה להזמין כרטיסים מראש.",
+            description: "ביקור בפארק גואל. הכרטיסים כבר בידיכם — להגיע בזמן החלון שעל הכרטיס.",
             notes: ["להגיע בזמן של הכרטיס.", "נעליים נוחות יעשו את ההבדל בעליות."],
             searchQuery: "Park Guell Barcelona tickets", mapQuery: "Park Guell Barcelona",
             originHint: HOTEL, transportType: "transit",
             priority: "must", ticketRequired: true, ticketUrl: "https://parkguell.barcelona/en/buy-tickets" }, // ← כרטיסים אמיתי
-          { id: "sun-boa-bao", time: "13:30", title: "צהריים אסייתי מוקפד", emoji: "🍛", category: "food",
+          { id: "sun-boa-bao", time: "14:30", title: "צהריים אסייתי מוקפד", emoji: "🍛", category: "food",
             placeName: "Boa-Bao", city: "Barcelona", coords: [41.3880, 2.1650],
-            description: "אוכל אסייתי מוקפד, רטבים עמוקים וירקות קריספיים.",
-            notes: ["מומלץ להזמין שולחן מראש.", "מעולה אחרי בוקר בפארק."],
+            description: "אוכל אסייתי מוקפד, רטבים עמוקים וירקות קריספיים. אחרי פארק גואל.",
+            notes: ["לא הזמנתם — נחליט במקום (אפשר גם בבר אם עמוס).", "כפתור הזמנה בכרטיס אם תרצו לסגור."],
             searchQuery: "Boa-Bao Barcelona reservation", mapQuery: "Boa-Bao Barcelona",
             originHint: "Park Guell Barcelona", transportType: "transit",
-            priority: "recommended", bookingRequired: true, bookingUrl: "http://www.boabao.es/" }, // ← לינק הזמנה אמיתי
-          { id: "sun-rest", time: "15:30-17:30", title: "מנוחת צהריים אחרונה", emoji: "🛌", category: "rest",
+            bookingUrl: "http://www.boabao.es/" }, // ← לינק הזמנה אם תרצו
+          { id: "sun-rest", time: "16:00-17:30", title: "מנוחת צהריים אחרונה", emoji: "🛌", category: "rest",
             placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
-            description: "מנוחה אחרונה לפני סיבוב ערב יפה וארוחת סיום.",
+            description: "מנוחה קצרה (קוצרה כדי לפצות על פארק גואל המאוחר) לפני סיבוב ערב יפה.",
             notes: ["לטעון טלפון.", "להחליף ללוק נוח לערב."],
             searchQuery: HOTEL, mapQuery: HOTEL, originHint: "Boa-Bao Barcelona", transportType: "transit" },
           { id: "sun-ciutadella", time: "18:00", title: "פארק המצודה בשיאו", emoji: "🌳", category: "park",
@@ -781,20 +707,20 @@
             notes: ["מים ומשהו קטן לנשנש.", "להשאיר זמן מעבר למונז׳ואיק."],
             searchQuery: "Arc de Triomf Parc de la Ciutadella Barcelona", mapQuery: "Arc de Triomf Barcelona",
             originHint: HOTEL, transportType: "transit" },
-          { id: "sun-fountain", time: "20:30", title: "מזרקת הקסם של מונז׳ואיק", emoji: "💦", category: "attraction",
+          { id: "sun-fountain", time: "21:00", title: "מזרקת הקסם של מונז׳ואיק", emoji: "💦", category: "attraction",
             placeName: "Magic Fountain of Montjuïc", city: "Barcelona", coords: [41.3711, 2.1517],
             wiki: "Magic Fountain of Montjuïc",
             description: "מופע מים ואורות רומנטי בפלאסה אספניה, אם פעיל.",
             notes: ["לבדוק בגוגל לפני: Is Magic Fountain open.", "בגלל תקנות מים ייתכנו שינויים/סגירות."],
             searchQuery: "Is Magic Fountain open Barcelona", mapQuery: "Magic Fountain of Montjuic Barcelona",
             originHint: "Parc de la Ciutadella Barcelona", transportType: "transit" },
-          { id: "sun-harrys", time: "22:00", title: "ארוחת סיום אלגנטית", emoji: "🥩", category: "food",
+          { id: "sun-harrys", time: "22:30", title: "ארוחת סיום אלגנטית", emoji: "🥩", category: "food",
             placeName: "Restaurante Harry's", city: "Barcelona", coords: [41.3885, 2.1580],
             description: "ארוחת ערב קלאסית ושיקית עם קוקטיילים מעולים באישמפלה.",
-            notes: ["מומלץ להזמין שולחן מראש.", "סיום יפה לטיול בלי לחץ."],
+            notes: ["לא הזמנתם — נחליט במקום.", "כפתור הזמנה בכרטיס אם תרצו לסגור."],
             searchQuery: "Restaurante Harry's Barcelona", mapQuery: "Restaurante Harry's Barcelona",
             originHint: "Magic Fountain of Montjuic Barcelona", transportType: "transit",
-            priority: "recommended", bookingRequired: true, bookingUrl: "http://www.harrysbcn.com/" } // ← לינק הזמנה אמיתי
+            bookingUrl: "http://www.harrysbcn.com/" } // ← לינק הזמנה אם תרצו
         ]
       },
       {
@@ -861,7 +787,7 @@
     function saveDone() { try { localStorage.setItem(DONE_KEY, JSON.stringify([...doneStops])); } catch {} }
     function loadImageCache() { try { return JSON.parse(localStorage.getItem(IMG_KEY) || "{}"); } catch { return {}; } }
     function saveImageCache() { try { localStorage.setItem(IMG_KEY, JSON.stringify(imageCache)); } catch {} }
-    function stopImage(s) { return s.image || imageCache[s.id] || gPhotoCache[s.id] || null; }
+    function stopImage(s) { return s.image || imageCache[s.id] || null; }
 
     function haversineKm(a, b) {
       const R = 6371, toRad = x => x * Math.PI / 180;
@@ -1008,12 +934,13 @@
       const isDone = doneStops.has(s.id);
       const d = dest(s), city = s.city;
       const img = stopImage(s);
+      const fbEmoji = CATEGORY_EMOJI[s.category] || s.emoji || "📍";
       const thumb = img
         ? `<span class="stop-thumb" data-thumb="${esc(s.id)}" style="background-image:url('${esc(img)}')"></span>`
-        : `<span class="stop-thumb is-emoji" data-thumb="${esc(s.id)}">${esc(s.emoji)}</span>`;
+        : `<span class="stop-thumb is-emoji" data-thumb="${esc(s.id)}">${esc(fbEmoji)}</span>`;
       const photoInner = img
         ? `<img src="${esc(img)}" alt="${esc(s.placeName)}" loading="lazy">`
-        : `<span class="photo-emoji">${esc(s.emoji)}</span><span class="photo-name">${esc(s.placeName)}</span>`;
+        : `<span class="photo-emoji">${esc(fbEmoji)}</span><span class="photo-name">${esc(s.placeName)}</span>`;
       const hasPoints = Array.isArray(s.points) && s.points.length > 1;
       const mapEmbed = hasPoints ? mapEmbedAll(s.points, city) : mapEmbedUrl(s.coords);
       const mapHref = hasPoints ? routeUrl(s.points, s.transportType) : mapSearchUrl(d, city);
@@ -1115,7 +1042,7 @@
       if (s.showUber || ["driving","taxi"].includes(s.transportType))
         acts.push({ cls:"act-uber", ic:"🚕", label:"Uber", href: uberUrl(dCity) });
       if (s.bookingUrl) acts.push({ cls:"act-book", ic:"🍽️", label:"הזמנה", href: s.bookingUrl });
-      else if (s.bookingRequired) acts.push({ cls:"act-book", ic:"🍽️", label:"הזמנה", href: googleSearchUrl((s.bookingSearchQuery || s.placeName + " reservation")) });
+      else if (s.bookingRequired || s.bookingSearchQuery) acts.push({ cls:"act-book", ic:"🍽️", label:"הזמנה", href: googleSearchUrl((s.bookingSearchQuery || s.placeName + " reservation")) });
       if (s.ticketUrl) acts.push({ cls:"act-ticket", ic:"🎟️", label:"כרטיסים", href: s.ticketUrl });
       else if (s.ticketRequired) acts.push({ cls:"act-ticket", ic:"🎟️", label:"כרטיסים", href: googleSearchUrl((s.ticketSearchQuery || s.placeName + " tickets")) });
       acts.push({ cls:"act-google", ic:"🔎", label:"גוגל", href: googleSearchUrl(s.searchQuery || (s.placeName + " " + (s.city||""))) });
@@ -1237,16 +1164,35 @@
       nav.href = next.originHint ? directionsUrl(next.originHint, dest(next), next.transportType) : mapSearchUrl(dest(next), next.city);
     }
 
-    /* ===================== תמונות (ויקיפדיה, ללא מפתח) ===================== */
+    /* ===================== תמונות (Wikipedia/Wikimedia בלבד — חינם, בלי מפתח) ===================== */
+    // לפי כותרת מדויקת (תחנות עם שדה wiki)
     async function fetchWikiImage(title) {
       const url = "https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1"
         + "&prop=pageimages&piprop=thumbnail&pithumbsize=640&titles=" + encodeURIComponent(title);
-      const r = await fetch(url);
-      if (!r.ok) throw new Error("wiki " + r.status);
+      const r = await fetch(url); if (!r.ok) return null;
       const pages = (await r.json())?.query?.pages || {};
       for (const k in pages) { const t = pages[k]?.thumbnail?.source; if (t) return t; }
       return null;
     }
+    // לפי שם המקום — מקבל תמונה רק אם העמוד הוא מקום גאוגרפי קרוב (מונע תמונה שגויה למסעדה/בר)
+    async function fetchWikiByName(s) {
+      const q = (s.searchQuery || s.placeName || "").replace(/[()]/g, " ").trim();
+      if (!q) return null;
+      const url = "https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1"
+        + "&generator=search&gsrlimit=3&gsrsearch=" + encodeURIComponent(q)
+        + "&prop=pageimages|coordinates&piprop=thumbnail&pithumbsize=640&colimit=1";
+      const r = await fetch(url); if (!r.ok) return null;
+      const pages = Object.values((await r.json())?.query?.pages || {});
+      pages.sort((a, b) => (a.index || 99) - (b.index || 99));
+      for (const p of pages) {
+        const thumb = p?.thumbnail?.source; if (!thumb) continue;
+        const co = p?.coordinates?.[0]; if (!co) continue;                       // חייב מקום גאוגרפי
+        if (s.coords && haversineKm(s.coords, [co.lat, co.lon]) > 5) continue;    // וקרוב למיקום התחנה
+        return thumb;
+      }
+      return null;
+    }
+    function resolveStopImage(s) { return s.wiki ? fetchWikiImage(s.wiki) : fetchWikiByName(s); }
 
     function applyImage(id, url) {
       if (!url) return;
@@ -1273,65 +1219,15 @@
     async function loadImages() {
       const tasks = [];
       tripDays.forEach(day => day.stops.forEach(s => {
-        if (s.image) { applyImage(s.id, s.image); return; }     // תמונה ידנית גוברת
-        if (imageCache[s.id]) { applyImage(s.id, imageCache[s.id]); return; } // מהמטמון
-        if (!s.wiki) return;                                    // אין מקור ויקיפדיה
+        if (s.image) { applyImage(s.id, s.image); return; }       // תמונה ידנית גוברת
+        if (s.id in imageCache) { if (imageCache[s.id]) applyImage(s.id, imageCache[s.id]); return; } // הצלחה/כישלון שמורים
         tasks.push(
-          fetchWikiImage(s.wiki)
-            .then(u => { if (u) { imageCache[s.id] = u; applyImage(s.id, u); } })
-            .catch(() => {})
+          resolveStopImage(s)
+            .then(u => { imageCache[s.id] = u || ""; if (u) applyImage(s.id, u); })
+            .catch(() => { imageCache[s.id] = ""; })
         );
       }));
       if (tasks.length) { await Promise.all(tasks); saveImageCache(); }
-    }
-
-    /* ===== תמונות אמיתיות מ-Google Places (אם הוגדר מפתח) ===== */
-    let gMapsPromise = null;
-    function loadGoogleMaps() {
-      if (!GOOGLE_MAPS_KEY) return Promise.resolve(false);
-      if (gMapsPromise) return gMapsPromise;
-      gMapsPromise = new Promise(resolve => {
-        const sc = document.createElement("script");
-        sc.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(GOOGLE_MAPS_KEY)
-          + "&libraries=places&v=weekly&loading=async";
-        sc.async = true;
-        sc.onload = () => resolve(true);
-        sc.onerror = () => resolve(false);
-        document.head.appendChild(sc);
-      });
-      return gMapsPromise;
-    }
-
-    async function loadGooglePhotos() {
-      if (!GOOGLE_MAPS_KEY) return;
-      const ok = await loadGoogleMaps();
-      if (!ok || !window.google?.maps?.importLibrary) return;
-      let Place;
-      try { ({ Place } = await google.maps.importLibrary("places")); }
-      catch { return; }
-      if (!Place?.searchByText) return;
-
-      const targets = [];
-      tripDays.forEach(day => day.stops.forEach(s => { if (!stopImage(s)) targets.push(s); }));
-
-      for (const s of targets) {
-        try {
-          const req = {
-            textQuery: (s.placeName || s.searchQuery) + " " + (s.city || "Barcelona"),
-            fields: ["photos"], maxResultCount: 1, language: "he"
-          };
-          if (s.coords) req.locationBias = { center: { lat: s.coords[0], lng: s.coords[1] }, radius: 600 };
-          const { places } = await Place.searchByText(req);
-          const photo = places?.[0]?.photos?.[0];
-          if (photo) {
-            const url = typeof photo.getURI === "function"
-              ? photo.getURI({ maxWidth: 640, maxHeight: 480 })
-              : (typeof photo.getUrl === "function" ? photo.getUrl({ maxWidth: 640 }) : null);
-            if (url) { gPhotoCache[s.id] = url; applyImage(s.id, url); }
-          }
-        } catch (e) { /* דלג על מקום שנכשל */ }
-        await new Promise(r => setTimeout(r, 120)); // עומס מבוקר
-      }
     }
 
     /* ===================== מזג אוויר (Open-Meteo, ללא מפתח) ===================== */
@@ -1403,70 +1299,10 @@
       document.querySelectorAll(".stop, .day").forEach(d => d.open = false);
     });
 
-    /* ===================== Tickets & bookings modal ===================== */
-    function advanceItems() {
-      const out = [];
-      tripDays.forEach(day => day.stops.forEach(s => {
-        const isTicket = !!(s.ticketRequired || s.ticketUrl);
-        const isBooking = !!(s.bookingRequired || s.bookingUrl);
-        if (!isTicket && !isBooking) return;
-        const kind = isTicket ? "ticket" : "booking";
-        const hasDirect = !!(s.ticketUrl || s.bookingUrl);
-        const href = s.ticketUrl || s.bookingUrl
-          || googleSearchUrl(isTicket ? (s.ticketSearchQuery || s.placeName + " tickets")
-                                      : (s.bookingSearchQuery || s.placeName + " reservation"));
-        out.push({ dayLabel: day.label, time: s.time, name: s.placeName, what: s.title,
-          city: s.city, kind, hasDirect, href, optional: !!s.optional,
-          priority: s.priority || (isTicket ? "must" : "recommended") });
-      }));
-      return out;
-    }
-
-    function renderTickets() {
-      const items = advanceItems();
-      document.getElementById("ticketsCount").textContent = items.length;
-      let html = "", lastDay = "";
-      items.forEach(it => {
-        if (it.dayLabel !== lastDay) { html += `<li class="tk-day-head">${esc(it.dayLabel)}</li>`; lastDay = it.dayLabel; }
-        const kindLabel = it.kind === "ticket" ? "כרטיס כניסה" : "הזמנת שולחן";
-        const kindIcon = it.kind === "ticket" ? "🎟️" : "🍽️";
-        const ctaLabel = it.kind === "ticket" ? "כרטיסים" : "הזמנה";
-        const tierLabel = it.priority === "must" ? (it.optional ? "חובה אם הולכים" : "חובה") : "מומלץ";
-        const tierClass = it.priority === "must" ? "tier-must" : "tier-recommended";
-        html += `
-          <li class="tk-item ${it.optional ? "is-optional" : ""}">
-            <span class="tk-when"><span class="tk-kind">${kindIcon}</span><span class="tk-time">${esc(it.time)}</span></span>
-            <span class="tk-main">
-              <strong>${esc(it.name)}</strong>
-              <small><span class="tk-tier ${tierClass}">${tierLabel}</span> ${esc(it.what)} · ${esc(kindLabel)}</small>
-            </span>
-            <a class="tk-cta kind-${it.kind} ${it.hasDirect ? "" : "is-search"}" href="${esc(it.href)}" target="_blank" rel="noopener">
-              ${esc(ctaLabel)} ${it.hasDirect ? "↗" : "🔎"}
-            </a>
-          </li>`;
-      });
-      document.getElementById("ticketsList").innerHTML = html;
-    }
-
-    function openTickets() {
-      renderTickets();
-      document.getElementById("ticketsModal").hidden = false;
-      document.body.style.overflow = "hidden";
-    }
-    function closeTickets() {
-      document.getElementById("ticketsModal").hidden = true;
-      document.body.style.overflow = "";
-    }
-    document.getElementById("btnTickets").addEventListener("click", openTickets);
-    document.querySelectorAll("[data-close-tickets]").forEach(el => el.addEventListener("click", closeTickets));
-    document.addEventListener("keydown", e => { if (e.key === "Escape") closeTickets(); });
-
     /* ===================== Boot ===================== */
     render();
     updateHeader();
-    renderTickets();
     loadImages();
-    loadGooglePhotos();
     loadWeather();
     setInterval(updateHeader, 30000);
   </script>
