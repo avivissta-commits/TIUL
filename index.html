@@ -434,7 +434,7 @@
   <main class="wrap">
     <div id="days"></div>
     <footer class="note">
-      תמונות האתרים המרכזיים נמשכות מויקיפדיה; לשאר אפשר להוסיף קישור תמונה בקוד (שדה image).<br>
+      תמונה אמיתית לכל מקום: הדביקו מפתח Google (GOOGLE_MAPS_KEY) בקוד. בלי מפתח — אתרים מפורסמים מקבלים תמונה מויקיפדיה, והשאר אימוג׳י.<br>
       קישורי מפות, ניווט ו־Uber נוצרים אוטומטית. מרחקים וזמנים הם הערכה (≈).
     </footer>
   </main>
@@ -469,6 +469,13 @@
        ========================================================= */
     const HOTEL = "Mosaic by Ona Barcelona";
     const HOTEL_COORDS = [41.3955, 2.1585];
+
+    // ── תמונות אמיתיות לכל מקום (אופציונלי) ──────────────────────────────
+    // הדביקו כאן מפתח Google Maps עם "Maps JavaScript API" + "Places API (New)" מופעלים.
+    // ריק = בלי תמונות Google (אתרים מפורסמים עדיין יקבלו תמונה מויקיפדיה).
+    // איך משיגים: console.cloud.google.com → פרויקט חדש → Enable APIs → Maps JavaScript API + Places API (New) → Credentials → Create API key.
+    const GOOGLE_MAPS_KEY = "";
+    let gPhotoCache = {}; // תמונות מ-Google לפי id (זמני, לא נשמר — מתרענן כל פתיחה)
 
     const CATEGORY = {
       arrival:   { label: "הגעה",    color: "#0d8f86" },
@@ -854,7 +861,7 @@
     function saveDone() { try { localStorage.setItem(DONE_KEY, JSON.stringify([...doneStops])); } catch {} }
     function loadImageCache() { try { return JSON.parse(localStorage.getItem(IMG_KEY) || "{}"); } catch { return {}; } }
     function saveImageCache() { try { localStorage.setItem(IMG_KEY, JSON.stringify(imageCache)); } catch {} }
-    function stopImage(s) { if (s.image) return s.image; const c = imageCache[s.id]; return c || null; }
+    function stopImage(s) { return s.image || imageCache[s.id] || gPhotoCache[s.id] || null; }
 
     function haversineKm(a, b) {
       const R = 6371, toRad = x => x * Math.PI / 180;
@@ -1244,17 +1251,21 @@
     function applyImage(id, url) {
       if (!url) return;
       document.querySelectorAll(`[data-thumb="${CSS.escape(id)}"]`).forEach(el => {
-        el.classList.remove("is-emoji");
-        el.textContent = "";
-        el.style.backgroundImage = `url("${url}")`;
+        const probe = new Image();
+        probe.onload = () => { el.classList.remove("is-emoji"); el.textContent = ""; el.style.backgroundImage = `url("${url}")`; };
+        probe.src = url;
       });
       document.querySelectorAll(`[data-photo="${CSS.escape(id)}"]`).forEach(tile => {
         if (tile.querySelector("img")) return;
-        tile.classList.add("has-img");
-        tile.querySelector(".photo-emoji")?.remove();
-        tile.querySelector(".photo-name")?.remove();
         const img = document.createElement("img");
-        img.src = url; img.alt = ""; img.loading = "lazy";
+        img.alt = ""; img.loading = "lazy";
+        img.onload = () => {
+          tile.classList.add("has-img");
+          tile.querySelector(".photo-emoji")?.remove();
+          tile.querySelector(".photo-name")?.remove();
+        };
+        img.onerror = () => img.remove(); // אם התמונה נשברה — נשאר אריח האימוג׳י
+        img.src = url;
         tile.insertBefore(img, tile.firstChild);
       });
     }
@@ -1263,15 +1274,64 @@
       const tasks = [];
       tripDays.forEach(day => day.stops.forEach(s => {
         if (s.image) { applyImage(s.id, s.image); return; }     // תמונה ידנית גוברת
-        if (!s.wiki) return;                                    // אין מקור אוטומטי
-        if (s.id in imageCache) { applyImage(s.id, imageCache[s.id]); return; } // מהמטמון
+        if (imageCache[s.id]) { applyImage(s.id, imageCache[s.id]); return; } // מהמטמון
+        if (!s.wiki) return;                                    // אין מקור ויקיפדיה
         tasks.push(
           fetchWikiImage(s.wiki)
-            .then(u => { imageCache[s.id] = u || ""; if (u) applyImage(s.id, u); })
+            .then(u => { if (u) { imageCache[s.id] = u; applyImage(s.id, u); } })
             .catch(() => {})
         );
       }));
       if (tasks.length) { await Promise.all(tasks); saveImageCache(); }
+    }
+
+    /* ===== תמונות אמיתיות מ-Google Places (אם הוגדר מפתח) ===== */
+    let gMapsPromise = null;
+    function loadGoogleMaps() {
+      if (!GOOGLE_MAPS_KEY) return Promise.resolve(false);
+      if (gMapsPromise) return gMapsPromise;
+      gMapsPromise = new Promise(resolve => {
+        const sc = document.createElement("script");
+        sc.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(GOOGLE_MAPS_KEY)
+          + "&libraries=places&v=weekly&loading=async";
+        sc.async = true;
+        sc.onload = () => resolve(true);
+        sc.onerror = () => resolve(false);
+        document.head.appendChild(sc);
+      });
+      return gMapsPromise;
+    }
+
+    async function loadGooglePhotos() {
+      if (!GOOGLE_MAPS_KEY) return;
+      const ok = await loadGoogleMaps();
+      if (!ok || !window.google?.maps?.importLibrary) return;
+      let Place;
+      try { ({ Place } = await google.maps.importLibrary("places")); }
+      catch { return; }
+      if (!Place?.searchByText) return;
+
+      const targets = [];
+      tripDays.forEach(day => day.stops.forEach(s => { if (!stopImage(s)) targets.push(s); }));
+
+      for (const s of targets) {
+        try {
+          const req = {
+            textQuery: (s.placeName || s.searchQuery) + " " + (s.city || "Barcelona"),
+            fields: ["photos"], maxResultCount: 1, language: "he"
+          };
+          if (s.coords) req.locationBias = { center: { lat: s.coords[0], lng: s.coords[1] }, radius: 600 };
+          const { places } = await Place.searchByText(req);
+          const photo = places?.[0]?.photos?.[0];
+          if (photo) {
+            const url = typeof photo.getURI === "function"
+              ? photo.getURI({ maxWidth: 640, maxHeight: 480 })
+              : (typeof photo.getUrl === "function" ? photo.getUrl({ maxWidth: 640 }) : null);
+            if (url) { gPhotoCache[s.id] = url; applyImage(s.id, url); }
+          }
+        } catch (e) { /* דלג על מקום שנכשל */ }
+        await new Promise(r => setTimeout(r, 120)); // עומס מבוקר
+      }
     }
 
     /* ===================== מזג אוויר (Open-Meteo, ללא מפתח) ===================== */
@@ -1406,6 +1466,7 @@
     updateHeader();
     renderTickets();
     loadImages();
+    loadGooglePhotos();
     loadWeather();
     setInterval(updateHeader, 30000);
   </script>
