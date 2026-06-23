@@ -198,6 +198,10 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .cat-pill { flex: 0 0 auto; font-size: 0.68rem; font-weight: 600; color: var(--cat, var(--teal-dark));
       background: var(--cat-soft, rgba(13,143,134,.10)); border-radius: 999px; padding: 1px 8px; }
+    .opt-badge { flex: 0 0 auto; font-size: 0.66rem; font-weight: 700; color: #fff;
+      background: var(--gold); border-radius: 999px; padding: 2px 8px; letter-spacing: .2px; }
+    .stop.is-optional { border-style: dashed; border-color: rgba(217,154,33,.55); background: #fffdf8; }
+    .stop.is-optional::before { opacity: .5; }
     .stop-chev { color: var(--muted); font-size: 0.95rem; transition: transform .2s ease; }
     .stop[open] .stop-chev { transform: rotate(180deg); }
 
@@ -546,31 +550,52 @@
             searchQuery: "R2S Passeig de Gracia to Sitges train", mapQuery: "Passeig de Gracia Station Barcelona",
             originHint: HOTEL, transportType: "transit",
             legOverride: { icon: "🚶", label: "הליכה לתחנה", durationText: "≈12 דק׳", distanceText: "≈0.9 ק״מ" } },
-          { id: "fri-balmins", time: "16:30", title: "מפרץ הנודיסטים בסיטג׳ס", emoji: "🏖️", category: "beach",
+          { id: "fri-balmins", time: "16:30", title: "ים במפרץ Balmins", emoji: "🏖️", category: "beach",
             placeName: "Platja dels Balmins", city: "Sitges", coords: [41.2400, 1.8120],
-            description: "מפרץ יפה, מים צלולים, חוף מעורב/נודיסטים. אופציה רגועה יותר: Bassa Rodona.",
+            description: "החוף הנודיסטי המופלא.",
             alt: { label: "אלטרנטיבה רגועה:", name: "Bassa Rodona", q: "Bassa Rodona Sitges" },
             notes: ["להגיע עם מעט דברים.", "קרם הגנה, משקפי שמש ומגבת קטנה."],
             searchQuery: "Platja dels Balmins Sitges Bassa Rodona", mapQuery: "Platja dels Balmins Sitges",
             originHint: "Sitges Station", transportType: "train",
             legOverride: { icon: "🚆", label: "רכבת R2S לסיטג׳ס", durationText: "≈40 דק׳", distanceText: "≈38 ק״מ" } },
-          { id: "fri-el-cable", time: "19:00", title: "טאפאס אותנטי בסמטאות", emoji: "🍤", category: "food",
+          { id: "fri-parrots", time: "18:30", title: "אפריטיבו ב-Parrots Pub", emoji: "🍹", category: "drink",
+            placeName: "Parrots Pub", city: "Sitges", coords: [41.2353, 1.8083],
+            description: "דרינק ראשון על הבר, אווירה של הקהילה.",
+            notes: ["שעת אפריטיבו — הכי שווה לשבת בחוץ.", "הלב של סיטג׳ס, לראות ולהיראות."],
+            searchQuery: "Parrots Pub Sitges", mapQuery: "Parrots Pub Sitges",
+            originHint: "Platja dels Balmins Sitges", transportType: "walking",
+            legOverride: { icon: "🚶", label: "הליכה למרכז העיירה", durationText: "≈12 דק׳", distanceText: "≈0.8 ק״מ" } },
+          { id: "fri-pecat", time: "19:15", title: "סיבוב בסמטאות (Carrer del Pecat)", emoji: "🛍️", category: "shopping",
+            placeName: "Carrer del Pecat (רחוב החטא)", city: "Sitges", coords: [41.2356, 1.8086],
+            description: "שוטטות קלה ברחוב החטא — חנויות בוטיק, מוזיקה ואנשים.",
+            notes: ["סמוך מאוד ל-Parrots.", "אווירה תוססת לקראת הערב."],
+            searchQuery: "Carrer Primer de Maig Sitges shops", mapQuery: "Carrer Primer de Maig Sitges",
+            originHint: "Parrots Pub Sitges", transportType: "walking" },
+          { id: "fri-el-cable", time: "19:45", title: "נשנוש קליל ב-El Cable", emoji: "🍤", category: "food",
             placeName: "El Cable", city: "Sitges", coords: [41.2370, 1.8055],
-            description: "מוסד מקומי של הקהילה בסיטג׳ס. בירה קרה וטאפאס לפנים.",
-            notes: ["כיף לבוא קלילים מהחוף.", "לשמור זמן לרכבת חזור."],
+            description: "רק נשנוש — פינצ׳ו אחד או שניים ובירה קרה, כי שומרים מקום למנה העיקרית ב-NeM.",
+            notes: ["לא להזמין יותר מדי כאן.", "מוסד מקומי של הקהילה בסיטג׳ס."],
             searchQuery: "El Cable Sitges tapas", mapQuery: "El Cable Sitges",
-            originHint: "Platja dels Balmins Sitges", transportType: "walking" },
-          { id: "fri-back", time: "21:00", title: "חזרה למלון בברצלונה", emoji: "🚿", category: "transport",
+            originHint: "Carrer Primer de Maig Sitges", transportType: "walking" },
+          { id: "fri-nem", time: "20:30", title: "ארוחת ערב ב-NeM Sitges", emoji: "🍽️", category: "food",
+            placeName: "NeM Sitges", city: "Sitges", coords: [41.2369, 1.8064],
+            description: "מתיישבים לארוחת ערב מודרנית ומעוצבת — זו המנה העיקרית של הערב בסיטג׳ס.",
+            notes: ["מומלץ להזמין שולחן מראש.", "זה הדינר האמיתי של הערב — להגיע עם תיאבון."],
+            searchQuery: "NeM Sitges restaurant", mapQuery: "NeM Sitges",
+            originHint: "El Cable Sitges", transportType: "walking",
+            bookingRequired: true, bookingSearchQuery: "NeM Sitges reservation" }, // ← אם יש לינק הזמנה אמיתי, החליפו ל-bookingUrl
+          { id: "fri-back", time: "22:15", title: "יציאה לרכבת וחזרה לברצלונה", emoji: "🚆", category: "transport",
             placeName: HOTEL, city: "Barcelona", coords: HOTEL_COORDS,
-            description: "חוזרים ברכבת לברצלונה, מקלחת והתארגנות מהירה לערב.",
-            notes: ["לוודא רכבת חזור נוחה.", "מקלחת משנה את כל הערב."],
+            description: "אחרי NeM — הליכה רגועה לתחנת סיטג׳ס, רכבת R2 חזרה לברצלונה, ואז מקלחת והתארגנות.",
+            notes: ["הליכה לתחנת סיטג׳ס כ-10 דק׳.", "לבדוק זמני רכבת חזור.", "מקלחת בחדר משנה את כל הערב."],
             searchQuery: "Sitges to Mosaic by Ona Barcelona train", mapQuery: HOTEL,
-            originHint: "El Cable Sitges", transportType: "train",
-            legOverride: { icon: "🚆", label: "רכבת חזרה לברצלונה", durationText: "≈45 דק׳", distanceText: "≈38 ק״מ" } },
-          { id: "fri-gala", time: "22:30", title: "ארוחת ערב / דרינקים משוגעים", emoji: "🎠", category: "food",
+            originHint: "NeM Sitges", transportType: "train",
+            legOverride: { icon: "🚆", label: "הליכה לתחנה + רכבת R2", durationText: "≈45 דק׳", distanceText: "≈38 ק״מ" } },
+          { id: "fri-gala", time: "22:30", title: "דרינקים והחוויה ב-Gala", emoji: "🎠", category: "drink",
             placeName: "Gala", city: "Barcelona", coords: [41.3880, 2.1660],
-            description: "מסעדה עם קרוסלת סוסים וחדר מראות. ערב צבעוני ומוגזם במידה הנכונה.",
-            notes: ["חובה להזמין הרבה זמן מראש.", "להגיע בזמן אחרי החזרה מסיטג׳ס."],
+            optional: true,
+            description: "אופציונלי — אם נשאר כוח אחרי NeM: דרינקים והחוויה של הקרוסלה וחדר המראות (לא ארוחה, כבר אכלתם).",
+            notes: ["אם רוצים לשבת — חובה להזמין מראש.", "אפשר גם לדלג ולשמור אנרגיה לסאונה."],
             searchQuery: "Gala Restaurante Barcelona", mapQuery: "Gala Restaurante Barcelona",
             originHint: HOTEL, transportType: "transit",
             bookingRequired: true, bookingUrl: "http://www.galarestaurante.com/" }, // ← לינק הזמנה אמיתי
@@ -924,7 +949,7 @@
             </ol>
           </div>` : "";
       return `
-      <details class="stop ${isDone?"is-done":""}" data-stop="${esc(s.id)}"
+      <details class="stop ${isDone?"is-done":""} ${s.optional?"is-optional":""}" data-stop="${esc(s.id)}"
         style="--cat:${cat.color};--cat-soft:${soft}">
         <summary>
           ${legStripHtml(s, prev)}
@@ -936,6 +961,7 @@
               <span class="stop-title">
                 <strong>${esc(s.title)}</strong>
                 <span class="stop-sub">
+                  ${s.optional ? `<span class="opt-badge">אופציונלי</span>` : ""}
                   <span class="cat-pill">${esc(cat.label)}</span>
                   <span class="stop-place">${esc(s.placeName)}</span>
                 </span>
